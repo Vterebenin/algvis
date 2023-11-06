@@ -539,11 +539,40 @@ video {
   margin-right: auto;
 }
 
+.flex {
+  display: flex;
+}
+
 .max-w-\[1280px\] {
   max-width: 1280px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-4 {
+  gap: 1rem;
 }
 
 .bg-deepforest {
   --tw-bg-opacity: 1;
   background-color: rgb(130 178 154 / var(--tw-bg-opacity));
+}
+
+.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-medium {
+  font-weight: 500;
 }

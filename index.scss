@@ -7,3 +7,32 @@ body, html {
   background: $midnight;
   color: $breeze;
 }
+
+a {
+  color: $breeze;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+}
+
+a:before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: -0.25em;
+  right: -0.25em;
+  background-color: $midnight;
+  transform-origin: center right;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+a:hover::before,
+a:visited::before,
+a:active::before,
+a:focus::before {
+  transform: scaleX(1);
+  transform-origin: center left;
+}
