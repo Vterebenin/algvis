@@ -1,3 +1,4 @@
+use crate::pages::sort::Sort;
 use yew_router::prelude::*;
 use yew::prelude::*;
 
@@ -30,7 +31,7 @@ pub fn secure() -> Html {
 pub fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <h1>{ "Home" }</h1> },
-        Route::Sort => html! { <h1>{ "Sort" }</h1> },
+        Route::Sort => html! { <Sort /> },
         Route::Maze => html! { <h1>{ "Maze" }</h1> },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }

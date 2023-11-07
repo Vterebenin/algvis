@@ -547,6 +547,10 @@ video {
   max-width: 1280px;
 }
 
+.transform {
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -562,6 +566,10 @@ video {
 .bg-deepforest {
   --tw-bg-opacity: 1;
   background-color: rgb(130 178 154 / var(--tw-bg-opacity));
+}
+
+.fill-pumpkin {
+  fill: #df7a5e;
 }
 
 .py-5 {
