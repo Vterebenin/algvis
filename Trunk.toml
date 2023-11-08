@@ -3,11 +3,6 @@ target = "index.html"
 dist = "dist"
 
 [[hooks]]
-stage = "pre_build"
-command = "tailwindcss"
-command_arguments = ["-i", "input.css", "-o", "tailwind.scss"]
-
-[[hooks]]
 stage = "build"
 command = "sh"
 command_arguments = ["-c", "./tailwindcss -i tailwind.scss -o $TRUNK_STAGING_DIR/tailwind.css"]
