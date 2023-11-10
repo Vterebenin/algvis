@@ -16,33 +16,37 @@ pub fn sort() -> Html {
     data.shuffle(&mut rng);
     let data: UseStateHandle<Vec<i32>> = use_state(|| data);
     
-    let time = 60;
+    let time = 10;
 
-    let sort_data = data.clone();
-    let handle_sort = Callback::from(move |_| {
-        let mut items = (*sort_data).clone();
-        let mut steps = VecDeque::new();
-        merge_sort(&mut items, &mut steps);
+    let handle_sort = {
+        let data = data.clone();
+        Callback::from(move |_| {
+            let mut items = (*data).clone();
+            let mut steps = VecDeque::new();
+            merge_sort(&mut items, &mut steps);
 
-        let items = sort_data.clone();
-        let mut arr = (*sort_data).clone();
-        let interval = Interval::new(time, move || {
-            let item = steps.pop_back();
-            if item.is_some() {
-                let (index, val) = item.unwrap();
-                arr[index] = val;
-                items.set(arr.clone());
-            }
-        });
-        interval.forget();
-    });
-    let shuffle_data = data.clone();
-    let handle_shuffle = Callback::from(move |_| {
-        let mut rng = thread_rng();
-        let mut items = (*shuffle_data).clone();
-        items.shuffle(&mut rng);
-        shuffle_data.set(items);
-    });
+            let items = data.clone();
+            let mut arr = (*data).clone();
+            let interval = Interval::new(time, move || {
+                let item = steps.pop_back();
+                if item.is_some() {
+                    let (index, val) = item.unwrap();
+                    arr[index] = val;
+                    items.set(arr.clone());
+                }
+            });
+            interval.forget();
+        })
+    };
+    let handle_shuffle = {
+        let data = data.clone();
+        Callback::from(move |_| {
+            let mut rng = thread_rng();
+            let mut items = (*data).clone();
+            items.shuffle(&mut rng);
+            data.set(items);
+        })
+    };
     html! {
         <>
             <div class="mx-auto flex-col justify-center items-center gap-6"> 
