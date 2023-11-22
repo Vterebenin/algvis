@@ -1,4 +1,6 @@
 use std::collections::VecDeque;
+use web_sys::{console};
+use wasm_bindgen::prelude::*;
 
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -8,14 +10,25 @@ use gloo_timers::callback::Interval;
 use crate::components::sorting_graph::SortingGraph;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 
+const MAX_ITEMS: i32 = 50;
+
 #[function_component(Sort)]
 pub fn sort() -> Html {
-    let mut data: Vec<i32> = (1..=50).collect(); // Create a vector with numbers from 1 to 100
+    let items_count = use_state(|| MAX_ITEMS.to_string());
+    let change_items_count = {
+        let items_count = items_count.clone();
+        Callback::from(move |e: InputEvent| {
+             let input: web_sys::HtmlTextAreaElement = e.target_unchecked_into();
+             items_count.set(input.value())
+        })
+    };
+    let mut data: Vec<i32> = (1..=items_count.parse::<i32>().unwrap()).collect(); // Create a vector with numbers from 1 to 100
 
     let mut rng = thread_rng();
     data.shuffle(&mut rng);
     let data: UseStateHandle<Vec<i32>> = use_state(|| data);
     
+    // todo: calculate based on time overall provided 
     let time = 10;
 
     let handle_sort = {
@@ -53,6 +66,8 @@ pub fn sort() -> Html {
                 <div class="flex justify-center gap-3">
                     <button onclick={handle_sort}>{ "Sort it!" }</button>
                     <button onclick={handle_shuffle}>{ "Shuffle!" }</button>
+                    <input value={(*items_count).clone()} oninput={change_items_count} />
+                    {(*items_count).clone()}
                 </div>
                 <SortingGraph data={(*data).clone()} />
             </div>

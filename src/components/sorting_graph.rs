@@ -1,13 +1,13 @@
+use web_sys::console;
 use yew::prelude::*;
 
-const WIDTH: usize = 8;
 const CHART_WIDTH: i32 = 500;
 const CHART_HEIGHT: i32 = 400;
 const MAX_HEIGHT: i32 = 40;
 const COEF: i32 = (CHART_WIDTH + CHART_HEIGHT) / MAX_HEIGHT;
 
-fn get_translate(idx: usize) -> String {
-    format!("translate({}, 0)", idx * (WIDTH + 2))
+fn get_translate(idx: usize, width: usize) -> String {
+    format!("translate({}, 0)", idx * (width + 2))
 }
 
 #[derive(Properties, PartialEq)]
@@ -17,6 +17,7 @@ pub struct Props {
 
 #[function_component(SortingGraph)]
 pub fn sorting_graph(props: &Props) -> Html {
+    let items_count = props.data.len();
     let items = (*props.data)
         .into_iter()
         .enumerate()
@@ -24,12 +25,14 @@ pub fn sorting_graph(props: &Props) -> Html {
             let height = item * (CHART_HEIGHT / COEF) / 4;
 
             let y = CHART_HEIGHT - height;
+            let width = (CHART_WIDTH as usize - (5 * items_count)) as usize / items_count;
+            console::log_1(&format!("width: {}", width).into());
             html! {
-                <g key={*item} class="fill-pumpkin" transform={get_translate(idx)}>
+                <g key={*item} class="fill-pumpkin" transform={get_translate(idx, width)}>
                     <rect
                         height={height.to_string()}
                         y={y.to_string()}
-                        width={WIDTH.to_string()}
+                        width={width.to_string()}
                     ></rect>
                 </g>
             }
