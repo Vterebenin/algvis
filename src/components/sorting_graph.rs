@@ -7,7 +7,7 @@ const MAX_HEIGHT: i32 = 40;
 const COEF: i32 = (CHART_WIDTH + CHART_HEIGHT) / MAX_HEIGHT;
 
 fn get_translate(idx: usize, width: usize) -> String {
-    format!("translate({}, 0)", idx * (width + 2))
+    format!("translate({}, 0)", idx * width)
 }
 
 #[derive(Properties, PartialEq)]
@@ -22,11 +22,12 @@ pub fn sorting_graph(props: &Props) -> Html {
         .into_iter()
         .enumerate()
         .map(|(idx, item)| {
-            let height = item * (CHART_HEIGHT / COEF) / 4;
+            let place = (*item as f32 / items_count as f32) as f32 * 100 as f32;
+            let height = (place / *item as f32) * CHART_HEIGHT as f32 / 100 as f32 * *item as f32;
 
-            let y = CHART_HEIGHT - height;
-            let width = (CHART_WIDTH as usize - (5 * items_count)) as usize / items_count;
-            console::log_1(&format!("width: {}", width).into());
+            let y = CHART_HEIGHT as f32 - height;
+            let width = CHART_WIDTH as usize / items_count;
+            console::log_1(&format!("height: {} {}", height, place).into());
             html! {
                 <g key={*item} class="fill-pumpkin" transform={get_translate(idx, width)}>
                     <rect
