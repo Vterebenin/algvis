@@ -5,9 +5,9 @@ dist = "dist"
 [[hooks]]
 stage = "build"
 command = "sh"
-command_arguments = ["-c", "./tailwindcss -i src/tailwind.scss -o $TRUNK_STAGING_DIR/tailwind.css"]
+command_arguments = ["-c", "./tailwindcss -i ./input.scss -o $TRUNK_STAGING_DIR/tailwind.css"]
 
 [[hooks]]
 stage = "pre_build"
 command = "./tailwindcss"
-command_arguments = ["-i", "./src/tailwind.scss", "-o", "tailwind.scss"]
+command_arguments = ["-i", "./input.scss", "-o", "tailwind.scss"]
