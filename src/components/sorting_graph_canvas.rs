@@ -20,8 +20,8 @@ pub struct Props {
 pub fn sorting_graph_canvas(props: &Props) -> Html {
 
     html! {
-        <>
+        <div>
             <canvas id="graphCanvas" />
-        </>
+        </div>
     }
 }

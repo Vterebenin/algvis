@@ -19,7 +19,7 @@ pub fn the_input(props: &Props) -> Html {
             </label>
         }                              
     } else { 
-        html! { <></> }
+        html! { <div></div> }
     };
     let set_value = {
         let oninput_cb = props.set_value.clone();

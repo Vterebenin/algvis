@@ -8,13 +8,11 @@ use yew::prelude::*;
 #[function_component(App)]
 pub fn app() -> Html {
     html! {
-        <>
-            <BrowserRouter>
-                <Navigation />
-                <main class="max-w-[1280px] mx-auto flex justify-between py-5">
-                    <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
-                </main>
-            </BrowserRouter>
-        </>
+        <BrowserRouter>
+            <Navigation />
+            <main class="max-w-[1280px] mx-auto flex justify-between py-5">
+                <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
+            </main>
+        </BrowserRouter>
     }
 }

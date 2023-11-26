@@ -6,6 +6,7 @@ use rand::thread_rng;
 use yew::prelude::*;
 
 use crate::components::sorting_graph::SortingGraph;
+use crate::components::the_button::TheButton;
 use crate::components::ui::the_input::TheInput;
 use crate::helpers::parse_string_to_i32_or_default;
 use crate::sorting_algorithms::merge_sort::merge_sort;
@@ -74,7 +75,6 @@ pub fn sort() -> Html {
     };
 
     html! {
-        <>
             <div class="mx-auto flex-col justify-center items-center gap-6">
                 <div class="flex justify-center gap-3 p-5 mb-5 border-2 border-sky-500 rounded-lg">
                     <TheInput 
@@ -82,12 +82,14 @@ pub fn sort() -> Html {
                         value={items_count.to_string()} 
                         set_value={change_items_count} 
                     />
+                    <TheButton>
+                        {"test"}
+                    </TheButton>
                     <button onclick={update}>{ "Update" }</button>
                     <button onclick={handle_sort}>{ "Sort it" }</button>
                     <button onclick={handle_shuffle}>{ "Shuffle" }</button>
                 </div>
                 <SortingGraph data={(*data).clone()} />
             </div>
-        </>
     }
 }

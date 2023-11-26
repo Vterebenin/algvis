@@ -42,19 +42,17 @@ pub fn sorting_graph(props: &Props) -> Html {
 
     let view_box = format!("0 0 {} {}", CHART_WIDTH, CHART_HEIGHT);
     html! {
-        <>
-            <svg
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                class="chart"
-                height={CHART_HEIGHT.to_string()}
-                width={CHART_WIDTH.to_string()}
-                viewBox={view_box}
-                aria-labelledby="title"
-                role="img"
-            >
-                { items }
-            </svg>
-        </>
+        <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            class="chart"
+            height={CHART_HEIGHT.to_string()}
+            width={CHART_WIDTH.to_string()}
+            viewBox={view_box}
+            aria-labelledby="title"
+            role="img"
+        >
+            { items }
+        </svg>
     }
 }
