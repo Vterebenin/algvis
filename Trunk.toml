@@ -9,5 +9,5 @@ command_arguments = ["-c", "./tailwindcss -i src/tailwind.scss -o $TRUNK_STAGING
 
 [[hooks]]
 stage = "pre_build"
-command = "tailwindcss"
+command = "./tailwindcss"
 command_arguments = ["-i", "./src/tailwind.scss", "-o", "tailwind.scss"]
