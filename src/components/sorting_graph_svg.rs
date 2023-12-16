@@ -15,8 +15,9 @@ pub struct Props {
     pub data: Vec<i32>,
 }
 
-#[function_component(SortingGraph)]
-pub fn sorting_graph(props: &Props) -> Html {
+// TODO: deprecated
+#[function_component(SortingGraphSvg)]
+pub fn sorting_graph_svg(props: &Props) -> Html {
     let items_count = props.data.len();
     let items = (*props.data)
         .into_iter()

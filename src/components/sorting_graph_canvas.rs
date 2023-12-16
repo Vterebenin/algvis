@@ -1,5 +1,6 @@
 use std::f64;
 use wasm_bindgen::prelude::*;
+use web_sys::{HtmlCanvasElement, CanvasRenderingContext2d};
 use yew::prelude::*;
 
 const CHART_WIDTH: f64 = 500.0;
@@ -17,23 +18,25 @@ struct ChartItem {
     height: f64,
 }
 
-pub fn calculate_item(item: i32, idx: usize, total_count: f64) -> ChartItem {
+pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: HtmlCanvasElement) -> ChartItem {
+    let width = canvas.width() as f64;
+    let height = canvas.height() as f64;
     let item = item as f64;
     let idx = idx as f64;
 
     let absolute_item_value = item / total_count;
 
-    let height = absolute_item_value * CHART_HEIGHT;
-    let width = CHART_WIDTH / total_count;
+    let item_height = absolute_item_value * height;
+    let item_width = width / total_count;
 
-    let y = CHART_HEIGHT - height;
+    let y = height - item_height;
     let x = width * idx;
 
     ChartItem {
         x,
         y,
-        width,
-        height,
+        width: item_width,
+        height: item_height,
     }
 }
 
@@ -44,8 +47,8 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
     use_effect(move || {
         let document = web_sys::window().unwrap().document().unwrap();
         let canvas = document.get_element_by_id("canvas").unwrap();
-        let canvas: web_sys::HtmlCanvasElement = canvas
-            .dyn_into::<web_sys::HtmlCanvasElement>()
+        let canvas: HtmlCanvasElement = canvas
+            .dyn_into::<HtmlCanvasElement>()
             .map_err(|_| ())
             .unwrap();
 
@@ -53,7 +56,7 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
             .get_context("2d")
             .unwrap()
             .unwrap()
-            .dyn_into::<web_sys::CanvasRenderingContext2d>()
+            .dyn_into::<CanvasRenderingContext2d>()
             .unwrap();
 
         context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
@@ -69,13 +72,11 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
                 y,
                 width,
                 height,
-            } = calculate_item(item, idx, items_count);
+            } = calculate_item(item, idx, items_count, canvas);
             context.fill_rect(x, y, width, height);
         }
     });
     html! {
-        <div>
-            <canvas id="canvas" width={CHART_WIDTH.to_string()} height={CHART_HEIGHT.to_string()} />
-        </div>
+        <canvas id="canvas" width={CHART_WIDTH.to_string()} height={CHART_HEIGHT.to_string()} />
     }
 }
