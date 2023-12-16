@@ -75,19 +75,26 @@ pub fn sort() -> Html {
     };
 
     html! {
-            <div class="mx-auto flex-col justify-center items-center gap-6">
-                <div class="flex justify-center gap-3 p-5 mb-5 border-2 border-sky-500 rounded-lg">
-                    <TheInput 
-                        label="Items Count" 
-                        value={items_count.to_string()} 
-                        set_value={change_items_count} 
-                    />
-                    <TheButton>
-                        {"test"}
-                    </TheButton>
-                    <button onclick={update}>{ "Update" }</button>
-                    <button onclick={handle_sort}>{ "Sort it" }</button>
-                    <button onclick={handle_shuffle}>{ "Shuffle" }</button>
+            <div class="mx-auto flex justify-center items-center gap-6">
+                <div class="flex flex-col justify-between gap-3 p-5 border-2 border-sky-500 rounded-lg h-full">
+                    <div>
+                        <TheInput
+                            label="Items Count"
+                            value={items_count.to_string()}
+                            set_value={change_items_count}
+                        />
+                    </div>
+                    <div class="flex flex-col gap-2 my-5">
+                        <TheButton onclick={update}>
+                            {"Update"}
+                        </TheButton>
+                        <TheButton onclick={handle_sort}>
+                            {"Sort it"}
+                        </TheButton>
+                        <TheButton onclick={handle_shuffle}>
+                            {"Shuffle"}
+                        </TheButton>
+                    </div>
                 </div>
                 <SortingGraphCanvas data={(*data).clone()} />
             </div>

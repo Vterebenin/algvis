@@ -11,14 +11,14 @@ pub struct Props {
     pub data: Vec<i32>,
 }
 
-struct ChartItem {
+pub struct ChartItem {
     x: f64,
     y: f64,
     width: f64,
     height: f64,
 }
 
-pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: HtmlCanvasElement) -> ChartItem {
+pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: &HtmlCanvasElement) -> ChartItem {
     let width = canvas.width() as f64;
     let height = canvas.height() as f64;
     let item = item as f64;
@@ -30,7 +30,7 @@ pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: HtmlCanva
     let item_width = width / total_count;
 
     let y = height - item_height;
-    let x = width * idx;
+    let x = item_width * idx;
 
     ChartItem {
         x,
@@ -72,7 +72,7 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
                 y,
                 width,
                 height,
-            } = calculate_item(item, idx, items_count, canvas);
+            } = calculate_item(item, idx, items_count, &canvas);
             context.fill_rect(x, y, width, height);
         }
     });
