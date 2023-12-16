@@ -2,7 +2,7 @@
 name = "algovis"
 version = "0.1.0"
 edition = "2021"
-description = "Template for starting a Yew project using Trunk"
+description = "Yew project with Trunk about algorithms and their visualization"
 readme = "README.md"
 repository = "https://github.com/yewstack/yew-trunk-minimal-template"
 license = "MIT OR Apache-2.0"
@@ -13,8 +13,17 @@ categories = ["gui", "wasm", "web-programming"]
 [dependencies]
 rand = "0.8.5"
 getrandom = { version = "0.2", features = ["js"] }
-web-sys = "0.3.65"
 yew = { version="0.20", features=["csr"] }
 yew-router = "0.17.0"
 gloo-timers = "0.3.0"
 wasm-bindgen = "0.2.88"
+
+[dependencies.web-sys]
+version = "0.3.65"
+features = [
+  'CanvasRenderingContext2d',
+  'Document',
+  'Element',
+  'HtmlCanvasElement',
+  'Window',
+]

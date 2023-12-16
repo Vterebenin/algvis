@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use yew::prelude::*;
 
-use crate::components::sorting_graph::SortingGraph;
+use crate::components::sorting_graph_canvas::SortingGraphCanvas;
 use crate::components::the_button::TheButton;
 use crate::components::ui::the_input::TheInput;
 use crate::helpers::parse_string_to_i32_or_default;
@@ -89,7 +89,7 @@ pub fn sort() -> Html {
                     <button onclick={handle_sort}>{ "Sort it" }</button>
                     <button onclick={handle_shuffle}>{ "Shuffle" }</button>
                 </div>
-                <SortingGraph data={(*data).clone()} />
+                <SortingGraphCanvas data={(*data).clone()} />
             </div>
     }
 }
