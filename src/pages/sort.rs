@@ -1,10 +1,6 @@
-use std::cell::RefCell;
 use std::collections::VecDeque;
-
-use gloo_timers::callback::Interval;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use web_sys::console;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
@@ -14,7 +10,15 @@ use crate::components::ui::the_input::TheInput;
 use crate::helpers::parse_string_to_i32_or_default;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 
-const MAX_ITEMS: i32 = 50;
+const MAX_ITEMS: i32 = 500;
+
+pub fn get_output_by_step(items: &mut [i32], steps: VecDeque<(usize, i32)>, step_index: u32) {
+    let mut steps = steps.clone();
+    for _ in 0..step_index {
+        let (index, val) = steps.pop_back().unwrap();
+        items[index] = val
+    }
+}
 
 #[function_component(Sort)]
 pub fn sort() -> Html {
@@ -42,40 +46,63 @@ pub fn sort() -> Html {
     data.shuffle(&mut rng);
     let data: UseStateHandle<Vec<i32>> = use_state(|| data);
     let steps: UseStateHandle<VecDeque<(usize, i32)>> = use_state(|| VecDeque::new());
+    let steps_time: UseStateHandle<f32> = use_state(|| 0.0);
+    let interval_ms: UseStateHandle<u32> = use_state(|| 0);
+    let active_step_index: UseStateHandle<u32> = use_state(|| 0);
+    let max_refresh_rate_ms: f32 = 33.33;
 
-    use_interval(move || {
-        console::log_1(&format!("test").into());
-    }, 1);
+    {
+        let items = data.clone();
+        let mut arr = (*data).clone();
+
+        let steps = steps.clone();
+        let steps_value = (*steps).clone();
+
+        let steps_time = steps_time.clone();
+        let steps_time_value = (*steps_time).clone();
+
+        let active_step_index = active_step_index.clone();
+        use_interval(move || {
+            let max = steps.len();
+            if *active_step_index as usize >= max {
+                // Clear interval when the end is reached.
+                steps_time.set(0.0);
+            } else {
+                let step_increment = (max_refresh_rate_ms / steps_time_value).ceil() as usize;
+                let new_step_index = *active_step_index + step_increment as u32;
+                let new_step_index = if new_step_index >= max as u32 {
+                    max as u32
+                } else {
+                    new_step_index
+                };
+                get_output_by_step(&mut arr, steps_value.clone(), new_step_index);
+                items.set(arr.clone());
+                active_step_index.set(new_step_index);
+            }
+        }, *interval_ms);
+    }
+
     let handle_sort = {
         let data = data.clone();
         let time_overall = time_overall.clone();
+        let steps_time = steps_time.clone();
+        let interval_ms = interval_ms.clone();
         let steps = steps.clone();
+
         Callback::from(move |_| {
             let mut items = (*data).clone();
             let mut alg_steps = VecDeque::new();
             merge_sort(&mut items, &mut alg_steps);
 
-            let items = data.clone();
-            let mut arr = (*data).clone();
-            let time = *time_overall / alg_steps.len() as i32;
-            let time = time as u32;
-            let time = 0;
-            let steps = steps.clone();
-            let interval_value = Interval::new(time, move || {
-                let item = alg_steps.pop_back();
-                steps.set(alg_steps.clone());
-                if item.is_some() {
-                    let (index, val) = item.unwrap();
-                    arr[index] = val;
-                    items.set(arr.clone());
-                }
-            });
-            interval_value.forget();
+            let time = *time_overall as f32 / alg_steps.len() as f32;
+
+            steps.set(alg_steps);
+            steps_time.set(time);
+            interval_ms.set(time.max(max_refresh_rate_ms) as u32);
         })
     };
     {
         use_effect_with_deps(|v| {
-            console::log_1(&format!("v: {:?}", v).into());
         }, steps)
     }
     fn shuffle(mut data: Vec<i32>) -> Vec<i32> {
