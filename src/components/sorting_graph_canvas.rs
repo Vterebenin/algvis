@@ -60,7 +60,7 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
             .unwrap();
 
         context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
-        context.set_fill_style(&str_to_js("#009688"));
+        context.set_fill_style(&str_to_js("#ff5733"));
         context.set_line_cap("round");
         context.set_line_join("round");
 

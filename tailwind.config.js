@@ -1,18 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "index.html",
-    "./src/**/*.rs"
-  ],
+  darkMode: ["class", '[data-mode="dark"]'],
+  content: ["index.html", "./src/**/*.rs"],
   theme: {
     extend: {
-    colors: {
-      midnight: '#3c405b',
-      pumpkin: '#df7a5e',
-      breeze: '#f4f1de',
-      deepforest: '#82b29a',
-    },
+      colors: {
+        background: "#1e1e1e",
+        primaryText: "#fff",
+        secondaryTextColor: "#a0a0a0",
+        accent: "#ff4d4d",
+        accentSecond: "#53c2da",
+        highlight: "#ffd700",
+        borders: "#333",
+      },
     },
   },
   plugins: [],
-}
+};

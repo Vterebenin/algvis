@@ -12,7 +12,7 @@ use crate::helpers::parse_string_to_i32_or_default;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 
 const MAX_ITEMS: i32 = 500;
-const MS_IN_SECS: i32 = 1000;
+const MS_IN_SECS: f32 = 1000.;
 
 pub fn get_output_by_step(items: &mut [i32], steps: VecDeque<(usize, i32)>, step_index: u32) {
     let mut steps = steps.clone();
@@ -33,7 +33,7 @@ pub fn sort() -> Html {
         })
     };
 
-    let time_overall = use_state(|| 1000);
+    let time_overall = use_state(|| 1);
     let change_time_overall = {
         let time_overall = time_overall.clone();
         Callback::from(move |value: String| {
@@ -102,7 +102,7 @@ pub fn sort() -> Html {
             let mut alg_steps = VecDeque::new();
             merge_sort(&mut items, &mut alg_steps);
 
-            let time = *time_overall as f32 / alg_steps.len() as f32;
+            let time = *time_overall as f32 / alg_steps.len() as f32 * MS_IN_SECS;
 
             steps.set(alg_steps);
             steps_time.set(time);
@@ -115,16 +115,7 @@ pub fn sort() -> Html {
         data.shuffle(&mut rng);
         data
     }
-    let handle_shuffle = {
-        let data = data.clone();
-        let steps = steps.clone();
-        Callback::from(move |_| {
-            let items = shuffle(data.to_vec());
-            steps.set(VecDeque::new());
-            data.set(items);
-        })
-    };
-    let update = {
+    let handle_generate = {
         let data = data.clone();
         let items_count = items_count.clone();
         let steps = steps.clone();
@@ -142,7 +133,7 @@ pub fn sort() -> Html {
 
     html! {
             <div class="mx-auto flex justify-center items-center gap-6">
-                <div class="flex flex-col justify-between gap-3 p-5 border-2 border-sky-500 rounded-lg h-full">
+                <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full">
                     <div>
                         <TheInput
                             label="Items Count"
@@ -150,20 +141,17 @@ pub fn sort() -> Html {
                             set_value={change_items_count}
                         />
                         <TheInput
-                            label="Time Overall"
+                            label="Time to run (seconds)"
                             value={time_overall.to_string()}
                             set_value={change_time_overall}
                         />
                     </div>
                     <div class="flex flex-col gap-2 my-5">
-                        <TheButton onclick={update}>
-                            {"Update"}
+                        <TheButton onclick={handle_generate}>
+                            {"Generate"}
                         </TheButton>
                         <TheButton onclick={handle_sort}>
                             {"Sort it"}
-                        </TheButton>
-                        <TheButton onclick={handle_shuffle}>
-                            {"Shuffle"}
                         </TheButton>
                     </div>
                 </div>

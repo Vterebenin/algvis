@@ -11,7 +11,7 @@ pub fn navigation() -> Html {
     });
 
     html! {
-        <header class="bg-deepforest">
+        <header>
             <nav class="max-w-[1280px] mx-auto flex justify-between py-5">
                 <div class="font-bold cursor-pointer" onclick={handle_route.clone().reform(|_| &Route::Home)}>{ "Algvis" }</div>
                 <div class="flex gap-4 font-medium">

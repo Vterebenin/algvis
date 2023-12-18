@@ -1,15 +1,49 @@
-$midnight: #3c405b;
-$pumpkin: #df7a5e;
-$breeze: #f4f1de;
-$deepforest: #82b29a;
+// white mode
+$background: #f5f5f5;
+$primaryText: #1e1e1e;
+$secondaryText: #1e1e1e;
+$borders: #ddd;
+
+// accents
+$accent: #ff4d4d;
+$accentSecond: #53c2da;
+$highlight: #ffd700;
+
+$background: var(--background-color);
+$primaryText: var(--primary-text-color);
+$secondaryText: var(--secondary-text-color);
+$borders: var(--borders-color);
+html {
+  --background-color: #f5f5f5;
+  --primary-text-color: #1e1e1e;
+  --secondary-text-color: #555;
+  --borders-color: #ddd;
+}
+html.dark {
+  --background-color: #1e1e1e;
+  --primary-text-color: #fff;
+  --secondary-text-color: #a0a0a0;
+  --borders-color: #333;
+}
+
+%dark-theme {
+  // dark mode
+  $background: #1e1e1e;
+  $primaryText: #fff;
+  $secondaryText: #a0a0a0;
+  $borders: #333;
+}
 
 body, html {
-  background: $midnight;
-  color: $breeze;
+  background: $background;
+  color: $primaryText;
+  &[dark] {
+    @extend %dark-theme;
+  }
 }
 
 a {
-  color: $breeze;
+  color: $primaryText;
   position: relative;
   cursor: pointer;
   z-index: 1;
@@ -23,7 +57,7 @@ a:before {
   bottom: 0;
   left: -0.25em;
   right: -0.25em;
-  background-color: $midnight;
+  background-color: $accent;
   transform-origin: center right;
   transform: scaleX(0);
   transition: transform 0.2s ease-in-out;
@@ -46,17 +80,17 @@ $gray: #9b9b9b;
   position: relative;
   padding: 15px 0 0;
   margin-top: 10px;
-  width: 50%;
+  width: 100%;
 }
 
 .form__field {
   font-family: inherit;
   width: 100%;
   border: 0;
-  border-bottom: 2px solid $gray;
+  border-bottom: 2px solid $borders;
   outline: 0;
   font-size: 1.3rem;
-  color: $white;
+  color: $primaryText;
   padding: 7px 0;
   background: transparent;
   transition: border-color 0.2s;
@@ -78,7 +112,7 @@ $gray: #9b9b9b;
   display: block;
   transition: 0.2s;
   font-size: 1rem;
-  color: $gray;
+  color: $secondaryText;
 }
 
 .form__field:focus {
@@ -88,11 +122,11 @@ $gray: #9b9b9b;
     display: block;
     transition: 0.2s;
     font-size: 1rem;
-    color: $primary;
+    color: $primaryText;
   }
   padding-bottom: 6px;  
   border-width: 3px;
-  border-image: linear-gradient(to right, $primary,$secondary);
+  border-image: linear-gradient(to right, $accent,$accentSecond);
   border-image-slice: 1;
 }
 /* reset input */

@@ -30,7 +30,7 @@ pub fn sorting_graph_svg(props: &Props) -> Html {
             let width = CHART_WIDTH as usize / items_count;
             console::log_1(&format!("height: {} {}", height, place).into());
             html! {
-                <g key={*item} class="fill-pumpkin" transform={get_translate(idx, width)}>
+                <g key={*item} class="fill-accent" transform={get_translate(idx, width)}>
                     <rect
                         height={height.to_string()}
                         y={y.to_string()}
