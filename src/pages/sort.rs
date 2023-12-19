@@ -8,6 +8,7 @@ use yew_hooks::use_interval;
 use crate::components::sorting_graph_canvas::SortingGraphCanvas;
 use crate::components::the_button::TheButton;
 use crate::components::ui::the_input::TheInput;
+use crate::components::ui::the_select::{TheSelect, SelectOption};
 use crate::helpers::parse_string_to_i32_or_default;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 
@@ -130,6 +131,17 @@ pub fn sort() -> Html {
         use_effect_with_deps(|v| {
         }, steps)
     }
+    let options = vec![
+        SelectOption { value: "merge_sort".to_string(), label: "Merge Sort".to_string() },
+        SelectOption { value: "bubble_sort".to_string(), label: "Bubble Sort".to_string() }
+    ];
+    let current_algorithm = use_state(|| options[0].value.clone());
+    let change_current_algorithm = {
+        let current_algorithm = current_algorithm.clone();
+        Callback::from(move |value: String| {
+            current_algorithm.set(value)
+        })
+    };
 
     html! {
             <div class="mx-auto flex justify-center items-center gap-6">
@@ -144,6 +156,12 @@ pub fn sort() -> Html {
                             label="Time to run (seconds)"
                             value={time_overall.to_string()}
                             set_value={change_time_overall}
+                        />
+                        <TheSelect 
+                            label="Sorting Algorithm"
+                            value={(*current_algorithm).clone()}
+                            on_change={change_current_algorithm}
+                            options={options}
                         />
                     </div>
                     <div class="flex flex-col gap-2 my-5">

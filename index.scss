@@ -3,6 +3,7 @@ $accent: #ff4d4d;
 $accentSecond: #53c2da;
 $highlight: #ffd700;
 
+$primaryTextWhiteTheme: #1e1e1e;
 $background: var(--background-color);
 $primaryText: var(--primary-text-color);
 $secondaryText: var(--secondary-text-color);
@@ -68,11 +69,6 @@ a:focus::before {
   transform-origin: center left;
 }
 
-$primary: #11998e;
-$secondary: #38ef7d;
-$white: #fff;
-$gray: #9b9b9b;
-
 .form__group {
   position: relative;
   padding: 15px 0 0;
@@ -125,6 +121,10 @@ $gray: #9b9b9b;
   border-width: 3px;
   border-image: linear-gradient(to right, $accent,$accentSecond);
   border-image-slice: 1;
+}
+.form__option {
+  color: $primaryTextWhiteTheme;
+  font-size: 1rem;
 }
 /* reset input */
 .form__field{
