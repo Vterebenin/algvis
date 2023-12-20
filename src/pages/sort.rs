@@ -13,6 +13,54 @@ use crate::sorting_algorithms::merge_sort::merge_sort;
 const MS_IN_SECS: f32 = 1000.;
 const MAX_REFRESH_RATE: f32 = 33.33;
 
+#[derive(Clone, PartialEq)]
+enum SortingAlgorithmEnum {
+    MergeSort,
+    BubbleSort,
+}
+
+impl SortingAlgorithmEnum {
+    fn from_string(s: String) -> Result<SortingAlgorithmEnum, &'static str> {
+        match s.as_str() {
+            "merge_sort" => Ok(SortingAlgorithmEnum::MergeSort),
+            "bubble_sort" => Ok(SortingAlgorithmEnum::BubbleSort),
+            _ => Err("Invalid variant"),
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
+struct Sorter {
+    algorithm: SortingAlgorithmEnum,
+    data: Vec<i32>,
+    steps: VecDeque<(usize, i32)>,
+}
+
+impl Sorter {
+    pub fn new(items_count: &i32) -> Sorter {
+        Self {
+            algorithm: SortingAlgorithmEnum::MergeSort,
+            data: get_new_generation(&items_count),
+            steps: VecDeque::new(),
+        }
+    }
+    pub fn sort(&mut self, sort_config: &SortConfigValues) -> f32 {
+        let mut data = self.data.clone();
+        self.steps = VecDeque::new();
+
+        // should be a computed algorithm by enum
+        merge_sort(&mut data, &mut self.steps);
+
+        let time = sort_config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
+        time
+    }
+    pub fn set_algorithm(&mut self, s: String) {
+        self.algorithm = SortingAlgorithmEnum::from_string(s).unwrap_or(SortingAlgorithmEnum::MergeSort);
+    }
+}
+
+
+
 pub fn get_output_by_step(items: &mut [i32], steps: VecDeque<(usize, i32)>, step_index: u32) {
     let mut steps = steps.clone();
     for _ in 0..step_index {
@@ -47,71 +95,63 @@ pub fn sort() -> Html {
         let config_value = (*config).clone();
         use_memo(|_| config_value.items_count.clone(), config_value.clone())
     };
-    let time_overall = {
-        let config_value = (*config).clone();
-        use_memo(|_| config_value.time_overall.clone(), config_value.clone())
-    };
 
-    let data: UseStateHandle<Vec<i32>> = use_state(|| get_new_generation(&items_count));
-    let steps: UseStateHandle<VecDeque<(usize, i32)>> = use_state(|| VecDeque::new());
+    let sorter: UseStateHandle<Sorter> = use_state(|| Sorter::new(&items_count));
     let steps_time: UseStateHandle<f32> = use_state(|| 0.0);
     let active_step_index: UseStateHandle<u32> = use_state(|| 0);
 
     {
-        let items = data.clone();
-        let mut arr = (*data).clone();
+        let sorter = sorter.clone();
+        let mut data_value = sorter.data.clone();
 
-        let steps = steps.clone();
-        let steps_value = (*steps).clone();
+        let steps_value = (*sorter).steps.clone();
+        let max_steps = steps_value.len() as u32;
 
         let steps_time = steps_time.clone();
         let steps_time_value = (*steps_time).clone();
 
         let active_step_index = active_step_index.clone();
+        let active_step_index_value = *active_step_index;
         use_interval(move || {
-            let max = steps.len();
-            if *active_step_index as usize >= max {
+            let mut sorter_value = (*sorter).clone();
+            if active_step_index_value >= max_steps {
                 // Clear interval when the end is reached.
                 steps_time.set(0.);
+                return ();
+            } 
+            let step_increment = (MAX_REFRESH_RATE / steps_time_value).ceil() as u32;
+            let new_step_index = active_step_index_value + step_increment;
+            let new_step_index = if new_step_index >= max_steps {
+                max_steps
             } else {
-                let step_increment = (MAX_REFRESH_RATE / steps_time_value).ceil() as usize;
-                let new_step_index = *active_step_index + step_increment as u32;
-                let new_step_index = if new_step_index >= max as u32 {
-                    max as u32
-                } else {
-                    new_step_index
-                };
-                console::log_1(&format!("test call").into());
-                get_output_by_step(&mut arr, steps_value.clone(), new_step_index);
-                items.set(arr.clone());
-                active_step_index.set(new_step_index);
-            }
+                new_step_index
+            };
+            get_output_by_step(&mut data_value, steps_value.clone(), new_step_index);
+            sorter_value.data = data_value.clone();
+            sorter.set(sorter_value);
+            active_step_index.set(new_step_index);
         }, steps_time_value.max(MAX_REFRESH_RATE) as u32);
     }
 
     let handle_sort = {
-        let steps = steps.clone();
-        let data_value = (*data).clone();
+        let sorter = sorter.clone();
+        let config = config.clone();
 
         Callback::from(move |_| {
-            let mut data_value = data_value.clone();
-            let mut alg_steps = VecDeque::new();
-
-            // should be a computed algorithm by enum
-            merge_sort(&mut data_value, &mut alg_steps);
-
-            let time = *time_overall as f32 / alg_steps.len() as f32 * MS_IN_SECS;
-
-            steps.set(alg_steps);
+            let mut sorter_value = (*sorter).clone();
+            let time = sorter_value.sort(&config);
+            sorter.set(sorter_value);
             steps_time.set(time);
             active_step_index.set(0);
         })
     };
     let handle_generate = {
-        let data = data.clone();
+        let sorter = sorter.clone();
         Callback::from(move |_| {
-            data.set(get_new_generation(&items_count));
-            steps.set(VecDeque::new());
+            let mut sorter_value = (*sorter).clone();
+            sorter_value.data = get_new_generation(&items_count);
+            sorter_value.steps = VecDeque::new();
+            sorter.set(sorter_value);
         })
     };
 
@@ -128,7 +168,7 @@ pub fn sort() -> Html {
                     </TheButton>
                 </div>
             </div>
-            <SortingGraphCanvas data={(*data).clone()} />
+            <SortingGraphCanvas data={(*sorter).data.clone()} />
         </div>
 }
 }
