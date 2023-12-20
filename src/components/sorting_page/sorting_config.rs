@@ -4,15 +4,15 @@ use crate::components::ui::the_input::TheInput;
 use crate::components::ui::the_select::{TheSelect, SelectOption};
 use crate::helpers::parse_string_to_i32_or_default;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct SortConfigValues {
-    items_count: i32,
-    time_overall: i32,
-    current_algorithm_name: String,
+    pub items_count: i32,
+    pub time_overall: i32,
+    pub current_algorithm_name: String,
     alg_options: Vec<SelectOption>,
 }
 impl SortConfigValues {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let default_algorithm = "merge_sort".to_string();
         Self {
             items_count: MAX_ITEMS,
@@ -28,8 +28,16 @@ impl SortConfigValues {
 
 const MAX_ITEMS: i32 = 500;
 
+#[derive(Properties, PartialEq)]
+pub struct Props {
+    #[prop_or(SortConfigValues::new())]
+    pub value: SortConfigValues, 
+    #[prop_or_default]
+    pub on_change: Callback<SortConfigValues>,
+}
+
 #[function_component(SortingConfig)]
-pub fn sorting_config() -> Html {
+pub fn sorting_config(props: &Props) -> Html {
     let config = use_state(|| SortConfigValues::new());
     let change_items_count = {
         let config = config.clone();
@@ -59,6 +67,15 @@ pub fn sorting_config() -> Html {
             config.set(config_value);
         })
     };
+    {
+        let on_change = props.on_change.clone();
+        let config = config.clone();
+        let config_value = (*config).clone();
+        use_effect_with_deps(move |_| {
+            on_change.emit((*config).clone());
+        }, config_value);
+    }
+
     html! {
         <div>
             <TheInput

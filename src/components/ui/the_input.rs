@@ -2,7 +2,6 @@ use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    #[prop_or("Bob".to_string())]
     pub label: String,
     pub value: String, 
     pub set_value: Callback<String>,
