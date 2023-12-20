@@ -29,6 +29,7 @@ impl SortingAlgorithmEnum {
     }
 }
 
+// test
 #[derive(Clone, PartialEq)]
 struct Sorter {
     algorithm: SortingAlgorithmEnum,
