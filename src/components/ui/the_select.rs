@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct SelectOption {
     pub value: String,
     pub label: String,

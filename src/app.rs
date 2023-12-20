@@ -1,4 +1,4 @@
-use crate::components::navigation::Navigation;
+use crate::components::misc::navigation::Navigation;
 use crate::router::{Route, switch};
 use yew_router::prelude::*;
 use yew::prelude::*;

@@ -5,12 +5,14 @@ use web_sys::console;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
-use crate::components::sorting_graph_canvas::SortingGraphCanvas;
-use crate::components::the_button::TheButton;
+use crate::components::sorting_page::sorting_graph_canvas::SortingGraphCanvas;
+use crate::components::sorting_page::sorting_config::SortingConfig;
+use crate::components::ui::the_button::TheButton;
 use crate::components::ui::the_input::TheInput;
 use crate::components::ui::the_select::{TheSelect, SelectOption};
 use crate::helpers::parse_string_to_i32_or_default;
 use crate::sorting_algorithms::merge_sort::merge_sort;
+
 
 const MAX_ITEMS: i32 = 500;
 const MS_IN_SECS: f32 = 1000.;
@@ -144,36 +146,39 @@ pub fn sort() -> Html {
     };
 
     html! {
-            <div class="mx-auto flex justify-center items-center gap-6">
-                <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full">
-                    <div>
-                        <TheInput
-                            label="Items Count"
-                            value={items_count.to_string()}
-                            set_value={change_items_count}
-                        />
-                        <TheInput
-                            label="Time to run (seconds)"
-                            value={time_overall.to_string()}
-                            set_value={change_time_overall}
-                        />
-                        <TheSelect 
-                            label="Sorting Algorithm"
-                            value={(*current_algorithm).clone()}
-                            on_change={change_current_algorithm}
-                            options={options}
-                        />
+            <div> 
+                <div class="mx-auto flex justify-center items-center gap-6">
+                    <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full">
+                        <div>
+                            <TheInput
+                                label="Items Count"
+                                value={items_count.to_string()}
+                                set_value={change_items_count}
+                            />
+                            <TheInput
+                                label="Time to run (seconds)"
+                                value={time_overall.to_string()}
+                                set_value={change_time_overall}
+                            />
+                            <TheSelect 
+                                label="Sorting Algorithm"
+                                value={(*current_algorithm).clone()}
+                                on_change={change_current_algorithm}
+                                options={options}
+                            />
+                        </div>
+                        <div class="flex flex-col gap-2 my-5">
+                            <TheButton onclick={handle_generate}>
+                                {"Generate"}
+                            </TheButton>
+                            <TheButton onclick={handle_sort}>
+                                {"Sort it"}
+                            </TheButton>
+                        </div>
                     </div>
-                    <div class="flex flex-col gap-2 my-5">
-                        <TheButton onclick={handle_generate}>
-                            {"Generate"}
-                        </TheButton>
-                        <TheButton onclick={handle_sort}>
-                            {"Sort it"}
-                        </TheButton>
-                    </div>
+                    <SortingGraphCanvas data={(*data).clone()} />
                 </div>
-                <SortingGraphCanvas data={(*data).clone()} />
+                <SortingConfig />
             </div>
     }
 }
