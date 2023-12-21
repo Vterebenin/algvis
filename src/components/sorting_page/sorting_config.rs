@@ -26,7 +26,7 @@ impl SortConfigValues {
     }
 }
 
-const MAX_ITEMS: i32 = 500;
+const MAX_ITEMS: i32 = 50;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
