@@ -26,7 +26,6 @@ pub fn sorting_graph_svg(props: &Props) -> Html {
 
             let y = CHART_HEIGHT as f32 - height;
             let width = CHART_WIDTH as usize / items_count;
-            console::log_1(&format!("height: {} {}", height, place).into());
             html! {
                 <g key={*item} class="fill-accent" transform={get_translate(idx, width)}>
                     <rect
