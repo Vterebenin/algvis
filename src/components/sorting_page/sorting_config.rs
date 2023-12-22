@@ -22,7 +22,8 @@ impl SortConfigValues {
             alg_options: vec![
                 SelectOption { value: default_algorithm, label: String::from("Merge Sort") },
                 SelectOption { value: String::from("bubble_sort"), label: String::from("Bubble Sort") },
-                SelectOption { value: String::from("heap_sort"), label: String::from("Heap Sort") }
+                SelectOption { value: String::from("heap_sort"), label: String::from("Heap Sort") },
+                SelectOption { value: String::from("quick_sort"), label: String::from("Quick Sort") }
             ]
         }
     }

@@ -5,6 +5,7 @@ use crate::helpers::get_new_generation;
 use crate::sorting_algorithms::bubble_sort::bubble_sort;
 use crate::sorting_algorithms::heap_sort::heap_sort;
 use crate::sorting_algorithms::merge_sort::merge_sort;
+use crate::sorting_algorithms::quick_sort::quick_sort;
 
 const MS_IN_SECS: f32 = 1000.;
 const MAX_REFRESH_RATE: f32 = 33.33;
@@ -20,6 +21,7 @@ enum SortingAlgorithmEnum {
     MergeSort,
     BubbleSort,
     HeapSort,
+    QuickSort,
 }
 
 impl SortingAlgorithmEnum {
@@ -28,6 +30,7 @@ impl SortingAlgorithmEnum {
             "merge_sort" => Ok(SortingAlgorithmEnum::MergeSort),
             "bubble_sort" => Ok(SortingAlgorithmEnum::BubbleSort),
             "heap_sort" => Ok(SortingAlgorithmEnum::HeapSort),
+            "quick_sort" => Ok(SortingAlgorithmEnum::QuickSort),
             _ => Err("Invalid variant"),
         }
     }
@@ -57,6 +60,7 @@ impl SortAlgorithm {
             SortingAlgorithmEnum::MergeSort => merge_sort::<i32>,
             SortingAlgorithmEnum::BubbleSort => bubble_sort::<i32>,
             SortingAlgorithmEnum::HeapSort => heap_sort::<i32>,
+            SortingAlgorithmEnum::QuickSort => quick_sort::<i32>,
         }
     }
 }
