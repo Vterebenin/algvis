@@ -11,6 +11,7 @@ pub struct SortConfigValues {
     pub current_algorithm_name: String,
     alg_options: Vec<SelectOption>,
 }
+
 impl SortConfigValues {
     pub fn new() -> Self {
         let default_algorithm = "merge_sort".to_string();
@@ -20,7 +21,8 @@ impl SortConfigValues {
             current_algorithm_name: default_algorithm.clone(),
             alg_options: vec![
                 SelectOption { value: default_algorithm, label: String::from("Merge Sort") },
-                SelectOption { value: String::from("bubble_sort"), label: String::from("Bubble Sort") }
+                SelectOption { value: String::from("bubble_sort"), label: String::from("Bubble Sort") },
+                SelectOption { value: String::from("heap_sort"), label: String::from("Heap Sort") }
             ]
         }
     }

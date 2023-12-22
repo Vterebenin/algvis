@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 use crate::components::sorting_page::sorting_config::SortConfigValues;
 use crate::helpers::get_new_generation;
 use crate::sorting_algorithms::bubble_sort::bubble_sort;
+use crate::sorting_algorithms::heap_sort::heap_sort;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 
 const MS_IN_SECS: f32 = 1000.;
@@ -18,6 +19,7 @@ pub enum SortType<T> {
 enum SortingAlgorithmEnum {
     MergeSort,
     BubbleSort,
+    HeapSort,
 }
 
 impl SortingAlgorithmEnum {
@@ -25,6 +27,7 @@ impl SortingAlgorithmEnum {
         match s.as_str() {
             "merge_sort" => Ok(SortingAlgorithmEnum::MergeSort),
             "bubble_sort" => Ok(SortingAlgorithmEnum::BubbleSort),
+            "heap_sort" => Ok(SortingAlgorithmEnum::HeapSort),
             _ => Err("Invalid variant"),
         }
     }
@@ -53,7 +56,7 @@ impl SortAlgorithm {
         match enum_value {
             SortingAlgorithmEnum::MergeSort => merge_sort::<i32>,
             SortingAlgorithmEnum::BubbleSort => bubble_sort::<i32>,
-            _ => merge_sort,
+            SortingAlgorithmEnum::HeapSort => heap_sort::<i32>,
         }
     }
 }
