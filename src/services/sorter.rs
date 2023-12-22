@@ -4,8 +4,10 @@ use crate::components::sorting_page::sorting_config::SortConfigValues;
 use crate::helpers::get_new_generation;
 use crate::sorting_algorithms::bubble_sort::bubble_sort;
 use crate::sorting_algorithms::heap_sort::heap_sort;
+use crate::sorting_algorithms::insertion_sort::insertion_sort;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 use crate::sorting_algorithms::quick_sort::quick_sort;
+use crate::sorting_algorithms::shell_sort::shell_sort;
 
 const MS_IN_SECS: f32 = 1000.;
 const MAX_REFRESH_RATE: f32 = 33.33;
@@ -22,6 +24,8 @@ enum SortingAlgorithmEnum {
     BubbleSort,
     HeapSort,
     QuickSort,
+    InsertionSort,
+    ShellSort,
 }
 
 impl SortingAlgorithmEnum {
@@ -31,6 +35,8 @@ impl SortingAlgorithmEnum {
             "bubble_sort" => Ok(SortingAlgorithmEnum::BubbleSort),
             "heap_sort" => Ok(SortingAlgorithmEnum::HeapSort),
             "quick_sort" => Ok(SortingAlgorithmEnum::QuickSort),
+            "insertion_sort" => Ok(SortingAlgorithmEnum::InsertionSort),
+            "shell_sort" => Ok(SortingAlgorithmEnum::ShellSort),
             _ => Err("Invalid variant"),
         }
     }
@@ -61,6 +67,8 @@ impl SortAlgorithm {
             SortingAlgorithmEnum::BubbleSort => bubble_sort::<i32>,
             SortingAlgorithmEnum::HeapSort => heap_sort::<i32>,
             SortingAlgorithmEnum::QuickSort => quick_sort::<i32>,
+            SortingAlgorithmEnum::InsertionSort => insertion_sort::<i32>,
+            SortingAlgorithmEnum::ShellSort => shell_sort::<i32>,
         }
     }
 }

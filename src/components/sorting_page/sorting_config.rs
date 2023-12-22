@@ -23,7 +23,9 @@ impl SortConfigValues {
                 SelectOption { value: default_algorithm, label: String::from("Merge Sort") },
                 SelectOption { value: String::from("bubble_sort"), label: String::from("Bubble Sort") },
                 SelectOption { value: String::from("heap_sort"), label: String::from("Heap Sort") },
-                SelectOption { value: String::from("quick_sort"), label: String::from("Quick Sort") }
+                SelectOption { value: String::from("quick_sort"), label: String::from("Quick Sort") },
+                SelectOption { value: String::from("insertion_sort"), label: String::from("Insertion Sort") },
+                SelectOption { value: String::from("shell_sort"), label: String::from("Shell Sort") }
             ]
         }
     }
