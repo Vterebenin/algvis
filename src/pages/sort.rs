@@ -30,13 +30,23 @@ pub fn sort() -> Html {
         );
     }
 
-    let handle_sort = {
+    let handle_play = {
         let sorter = sorter.clone();
         let config = config.clone();
 
         Callback::from(move |_| {
             let mut sorter_value = (*sorter).clone();
             sorter_value.sort(&config);
+            sorter.set(sorter_value);
+        })
+    };
+
+    let handle_pause = {
+        let sorter = sorter.clone();
+
+        Callback::from(move |_| {
+            let mut sorter_value = (*sorter).clone();
+            sorter_value.stop();
             sorter.set(sorter_value);
         })
     };
@@ -59,9 +69,21 @@ pub fn sort() -> Html {
                     <TheButton onclick={handle_generate}>
                         {"Generate"}
                     </TheButton>
-                    <TheButton onclick={handle_sort}>
-                        {"Sort it"}
-                    </TheButton>
+                    {
+                        if (*sorter).is_playing {
+                            html! {
+                                <TheButton onclick={handle_pause}>
+                                    {"Pause"}
+                                </TheButton>
+                            }
+                        } else {
+                            html! {
+                                <TheButton onclick={handle_play}>
+                                    {"Play"}
+                                </TheButton>
+                            }
+                        }
+                    }
                 </div>
             </div>
             <SortingGraphCanvas data={(*sorter).data.clone()} />
