@@ -85,6 +85,7 @@ pub struct Sorter {
     steps: VecDeque<SortType<i32>>,
     steps_time: f32,
     initial_data: Vec<i32>,
+    pub is_playing: bool,
 }
 
 impl Sorter {
@@ -97,14 +98,20 @@ impl Sorter {
             steps: VecDeque::new(),
             steps_time: 0.,
             initial_data: generation,
+            is_playing: false,
         }
     }
 
     pub fn sort(&mut self, sort_config: &SortConfigValues) {
+        if self.is_playing == false && self.steps_time > 0. {
+            self.is_playing = true;
+            return;
+        }
         let mut data = self.initial_data.clone();
         self.data = self.initial_data.clone();
         self.steps = VecDeque::new();
         self.active_step = 0;
+        self.is_playing = true;
 
         // should be a computed algorithm by enum
         let algorithm = SortAlgorithm::new();
@@ -117,11 +124,15 @@ impl Sorter {
         self.algorithm = SortingAlgorithmEnum::from_string(s).unwrap_or(SortingAlgorithmEnum::MergeSort);
     }
 
+    pub fn stop(&mut self) {
+        self.is_playing = false;
+    }
     pub fn tick(&mut self) {
         let max_steps = self.steps.len() as u32;
         if self.active_step >= max_steps {
             // Clear interval when the end is reached.
             self.steps_time = 0.;
+            self.is_playing = false;
             return ();
         } 
         let step_increment = (MAX_REFRESH_RATE / self.steps_time).ceil() as u32;
@@ -142,7 +153,7 @@ impl Sorter {
     }
 
     pub fn tick_time(&self) -> u32 {
-        if self.steps_time == 0. {
+        if self.steps_time == 0. || !self.is_playing {
             return 0
         }
         self.steps_time.max(MAX_REFRESH_RATE) as u32
