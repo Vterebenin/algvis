@@ -4,6 +4,7 @@ use yew_hooks::use_interval;
 use crate::components::sorting_page::sorting_config::{SortConfigValues, SortingConfig};
 use crate::components::sorting_page::sorting_graph_canvas::SortingGraphCanvas;
 use crate::components::ui::the_button::TheButton;
+use crate::components::ui::the_slider::TheSlider;
 use crate::services::sorter::Sorter;
 
 #[function_component(Sort)]
@@ -36,7 +37,7 @@ pub fn sort() -> Html {
 
         Callback::from(move |_| {
             let mut sorter_value = (*sorter).clone();
-            sorter_value.sort(&config);
+            sorter_value.play(&config);
             sorter.set(sorter_value);
         })
     };
@@ -57,6 +58,15 @@ pub fn sort() -> Html {
         Callback::from(move |_| {
             let mut sorter_value = (*sorter).clone();
             sorter_value.generate(&config);
+            sorter.set(sorter_value);
+        })
+    };
+
+    let change_current_step = {
+        let sorter = sorter.clone();
+        Callback::from(move |value: u32| {
+            let mut sorter_value = (*sorter).clone();
+            sorter_value.set_step(value);
             sorter.set(sorter_value);
         })
     };
@@ -86,7 +96,16 @@ pub fn sort() -> Html {
                     }
                 </div>
             </div>
-            <SortingGraphCanvas data={(*sorter).data.clone()} />
+            <div>
+                <div>{format!("Steps total: {}", sorter.get_steps_len_string())}</div>
+                <div>{format!("Active step: {}", sorter.get_active_step_string())}</div>
+                <SortingGraphCanvas data={(*sorter).data.clone()} />
+                <TheSlider 
+                    max={sorter.get_steps_len_string()} 
+                    value={(*sorter).active_step} 
+                    set_value={change_current_step} 
+                />
+            </div>
         </div>
     }
 }
