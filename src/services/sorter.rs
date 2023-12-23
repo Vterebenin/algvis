@@ -26,6 +26,7 @@ enum SortingAlgorithmEnum {
     QuickSort,
     InsertionSort,
     ShellSort,
+    BucketSort,
 }
 
 impl SortingAlgorithmEnum {
@@ -37,6 +38,7 @@ impl SortingAlgorithmEnum {
             "quick_sort" => Ok(SortingAlgorithmEnum::QuickSort),
             "insertion_sort" => Ok(SortingAlgorithmEnum::InsertionSort),
             "shell_sort" => Ok(SortingAlgorithmEnum::ShellSort),
+            "bucket_sort" => Ok(SortingAlgorithmEnum::BucketSort),
             _ => Err("Invalid variant"),
         }
     }
@@ -69,6 +71,7 @@ impl SortAlgorithm {
             SortingAlgorithmEnum::QuickSort => quick_sort::<i32>,
             SortingAlgorithmEnum::InsertionSort => insertion_sort::<i32>,
             SortingAlgorithmEnum::ShellSort => shell_sort::<i32>,
+            SortingAlgorithmEnum::BucketSort => todo!(),
         }
     }
 }

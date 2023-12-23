@@ -17,7 +17,7 @@ impl SortConfigValues {
         let default_algorithm = "merge_sort".to_string();
         Self {
             items_count: MAX_ITEMS,
-            time_overall: 1,
+            time_overall: 10,
             current_algorithm_name: default_algorithm.clone(),
             alg_options: vec![
                 SelectOption { value: default_algorithm, label: String::from("Merge Sort") },
@@ -25,13 +25,14 @@ impl SortConfigValues {
                 SelectOption { value: String::from("heap_sort"), label: String::from("Heap Sort") },
                 SelectOption { value: String::from("quick_sort"), label: String::from("Quick Sort") },
                 SelectOption { value: String::from("insertion_sort"), label: String::from("Insertion Sort") },
-                SelectOption { value: String::from("shell_sort"), label: String::from("Shell Sort") }
+                SelectOption { value: String::from("shell_sort"), label: String::from("Shell Sort") },
+                // SelectOption { value: String::from("bucket_sort"), label: String::from("Bucket Sort") }
             ]
         }
     }
 }
 
-const MAX_ITEMS: i32 = 50;
+const MAX_ITEMS: i32 = 100;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
