@@ -10,6 +10,7 @@ pub struct SortConfigValues {
     pub time_overall: i32,
     pub current_algorithm_name: String,
     alg_options: Vec<SelectOption>,
+    pub current_step: u32,
 }
 
 impl SortConfigValues {
@@ -27,7 +28,8 @@ impl SortConfigValues {
                 SelectOption { value: String::from("insertion_sort"), label: String::from("Insertion Sort") },
                 SelectOption { value: String::from("shell_sort"), label: String::from("Shell Sort") },
                 // SelectOption { value: String::from("bucket_sort"), label: String::from("Bucket Sort") }
-            ]
+            ],
+            current_step: 0,
         }
     }
 }

@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use web_sys::console;
+
 use crate::components::sorting_page::sorting_config::SortConfigValues;
 use crate::helpers::get_new_generation;
 use crate::sorting_algorithms::bubble_sort::bubble_sort;
@@ -81,8 +83,8 @@ impl SortAlgorithm {
 pub struct Sorter {
     pub data: Vec<i32>,
     algorithm: SortingAlgorithmEnum,
-    active_step: u32,
-    steps: VecDeque<SortType<i32>>,
+    pub active_step: u32,
+    pub steps: VecDeque<SortType<i32>>,
     steps_time: f32,
     initial_data: Vec<i32>,
     pub is_playing: bool,
@@ -91,7 +93,7 @@ pub struct Sorter {
 impl Sorter {
     pub fn new(sort_config: &SortConfigValues) -> Sorter {
         let generation = get_new_generation(&sort_config.items_count);
-        Self {
+        let mut sorter = Self {
             algorithm: SortingAlgorithmEnum::MergeSort,
             data: generation.clone(),
             active_step: 0,
@@ -99,34 +101,52 @@ impl Sorter {
             steps_time: 0.,
             initial_data: generation,
             is_playing: false,
-        }
+        };
+        sorter.generate(sort_config);
+        sorter
     }
 
     pub fn sort(&mut self, sort_config: &SortConfigValues) {
-        if self.is_playing == false && self.steps_time > 0. {
-            self.is_playing = true;
-            return;
-        }
         let mut data = self.initial_data.clone();
         self.data = self.initial_data.clone();
         self.steps = VecDeque::new();
         self.active_step = 0;
-        self.is_playing = true;
 
-        // should be a computed algorithm by enum
         let algorithm = SortAlgorithm::new();
         algorithm.do_sort(sort_config, &mut data, &mut self.steps);
-
-        self.steps_time = sort_config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
     }
 
-    pub fn _set_algorithm(&mut self, s: String) {
+    fn _set_algorithm(&mut self, s: String) {
         self.algorithm = SortingAlgorithmEnum::from_string(s).unwrap_or(SortingAlgorithmEnum::MergeSort);
+    }
+
+    fn reset(&mut self, sort_config: &SortConfigValues) {
+        self.data = self.initial_data.clone();
+        self.set_step(0);
+        self.calculate_time(sort_config);
+    }
+
+    pub fn play(&mut self, sort_config: &SortConfigValues) {
+        self.is_playing = true;
+        if self.active_step as usize == self.steps.len() {
+            self.reset(sort_config);
+            return;
+        }
+        if self.is_playing == false && self.steps_time > 0. {
+            return;
+        }
+
+        self.calculate_time(sort_config);
+    }
+
+    fn calculate_time(&mut self, sort_config: &SortConfigValues) {
+        self.steps_time = sort_config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
     }
 
     pub fn stop(&mut self) {
         self.is_playing = false;
     }
+
     pub fn tick(&mut self) {
         let max_steps = self.steps.len() as u32;
         if self.active_step >= max_steps {
@@ -150,6 +170,16 @@ impl Sorter {
         self.data = get_new_generation(&sort_config.items_count);
         self.steps = VecDeque::new();
         self.initial_data = self.data.clone();
+        self.sort(sort_config);
+    }
+
+    pub fn set_step(&mut self, step: u32) {
+        self.data = self.get_output_by_step(step);
+        self.active_step = step;
+    }
+    
+    pub fn get_active_step_string(&self) -> String {
+        self.active_step.to_string()
     }
 
     pub fn tick_time(&self) -> u32 {
@@ -171,5 +201,9 @@ impl Sorter {
             }
         }
         data
+    }
+
+    pub fn get_steps_len_string(&self) -> String {
+        self.steps.len().to_string()
     }
 }
