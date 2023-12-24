@@ -21,7 +21,7 @@ pub fn the_slider(props: &Props) -> Html {
     
     html! {
         <input
-            class="w-full h-2 bg-borders rounded-lg appearance-none cursor-pointer accent-highlight"
+            class="w-full h-2 bg-borders rounded-lg appearance-none cursor-pointer accent-accent hover:accent-accentSecond"
             type="input"
             min="0"
             max={props.max.clone()}

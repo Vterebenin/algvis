@@ -71,9 +71,21 @@ pub fn sort() -> Html {
         })
     };
 
+    let steps_info = {
+        let steps_total = format!("Steps total: {}", sorter.get_steps_len_string());
+        let active_step_index = format!("Active step: {}", sorter.get_active_step_string());
+        let active_step = sorter.get_active_step_item().to_string();
+        html! {
+            <>
+                <div>{steps_total}</div>
+                <div>{active_step_index}{" "}{active_step}</div>
+            </>
+        }
+    };
+
     html! {
-        <div class="mx-auto flex justify-center items-center gap-6">
-            <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full">
+        <div class="w-full flex justify-center items-center gap-6 mt-[100px]">
+            <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full w-full max-w-[320px]">
                 <SortingConfig value={(*config).clone()} on_change={change_config} />
                 <div class="flex flex-col gap-2 my-5">
                     <TheButton onclick={handle_generate}>
@@ -96,10 +108,12 @@ pub fn sort() -> Html {
                     }
                 </div>
             </div>
-            <div>
-                <div>{format!("Steps total: {}", sorter.get_steps_len_string())}</div>
-                <div>{format!("Active step: {}", sorter.get_active_step_string())}</div>
-                <SortingGraphCanvas data={(*sorter).data.clone()} />
+            <div class="w-full">
+                {steps_info}
+                <SortingGraphCanvas 
+                    data={(*sorter).data.clone()} 
+                    active_step_item={(*sorter).get_active_step_item()} 
+                />
                 <TheSlider 
                     max={sorter.get_steps_len_string()} 
                     value={(*sorter).active_step} 

@@ -27,6 +27,10 @@ body, html {
   color: $primaryText;
 }
 
+p {
+  white-space: pre;
+}
+
 .av-day-toggle {
   display: none;
 }
