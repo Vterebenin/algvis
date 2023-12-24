@@ -1,7 +1,5 @@
 use std::collections::VecDeque;
 
-use web_sys::console;
-
 use crate::components::sorting_page::sorting_config::SortConfigValues;
 use crate::helpers::get_new_generation;
 use crate::sorting_algorithms::bubble_sort::bubble_sort;

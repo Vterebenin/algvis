@@ -1,6 +1,6 @@
 use std::f64;
 use wasm_bindgen::prelude::*;
-use web_sys::{HtmlCanvasElement, CanvasRenderingContext2d, console};
+use web_sys::{HtmlCanvasElement, CanvasRenderingContext2d};
 use yew::prelude::*;
 
 use crate::services::sorter::SortType;
@@ -27,11 +27,20 @@ pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: &HtmlCanv
 
     let absolute_item_value = item / total_count;
 
+    let is_width_spaceable = width > (total_count * spacing) * 2.;
     let item_height = absolute_item_value * height;
-    let item_width = (width - total_count * spacing) / total_count;
+    let item_width = if is_width_spaceable {
+        (width - total_count * spacing) / total_count
+    } else {
+        width / total_count
+    };
 
     let y = height - item_height;
-    let x = item_width * idx + spacing * idx;
+    let x = if is_width_spaceable {
+        item_width * idx + spacing * idx
+    } else {
+        item_width * idx
+    };
 
     ChartItem {
         x,
