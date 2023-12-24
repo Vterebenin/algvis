@@ -1,4 +1,3 @@
-use web_sys::console;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]

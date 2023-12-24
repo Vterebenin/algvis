@@ -4,6 +4,8 @@ use crate::components::ui::the_input::TheInput;
 use crate::components::ui::the_select::{TheSelect, SelectOption};
 use crate::helpers::parse_string_to_i32_or_default;
 
+const MAX_ITEMS: i32 = 1000;
+
 #[derive(Clone, PartialEq)]
 pub struct SortConfigValues {
     pub items_count: i32,
@@ -33,8 +35,6 @@ impl SortConfigValues {
         }
     }
 }
-
-const MAX_ITEMS: i32 = 100;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
