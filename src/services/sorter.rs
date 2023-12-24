@@ -14,10 +14,25 @@ use crate::sorting_algorithms::shell_sort::shell_sort;
 const MS_IN_SECS: f32 = 1000.;
 const MAX_REFRESH_RATE: f32 = 33.33;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Copy)]
 pub enum SortType<T> {
     Set(usize, T),
     Swap(usize, usize),
+}
+
+impl ToString for SortType<i32> {
+    fn to_string(&self) -> String {
+        match &self {
+            SortType::Swap(idx1, idx2) => {
+                if idx1 == idx2 && idx1 == &0 {
+                    String::new()
+                } else {
+                    format!("Swap indexes {} and {}", idx1, idx2)
+                }
+            },
+            SortType::Set(idx, value) => format!("Set index {} to {}", idx, value),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -205,5 +220,12 @@ impl Sorter {
 
     pub fn get_steps_len_string(&self) -> String {
         self.steps.len().to_string()
+    }
+
+    pub fn get_active_step_item(&self) -> SortType<i32> {
+        match self.steps.get(self.steps.len() - self.active_step as usize) {
+            Some(v) => *v,
+            None => SortType::Swap(0, 0)
+        }
     }
 }

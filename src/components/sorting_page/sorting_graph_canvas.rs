@@ -1,14 +1,14 @@
 use std::f64;
 use wasm_bindgen::prelude::*;
-use web_sys::{HtmlCanvasElement, CanvasRenderingContext2d};
+use web_sys::{HtmlCanvasElement, CanvasRenderingContext2d, console};
 use yew::prelude::*;
 
-const CHART_WIDTH: f64 = 500.0;
-const CHART_HEIGHT: f64 = 400.0;
+use crate::services::sorter::SortType;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub data: Vec<i32>,
+    pub active_step_item: SortType<i32>
 }
 
 pub struct ChartItem {
@@ -19,6 +19,7 @@ pub struct ChartItem {
 }
 
 pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: &HtmlCanvasElement) -> ChartItem {
+    let spacing = 1.;
     let width = canvas.width() as f64;
     let height = canvas.height() as f64;
     let item = item as f64;
@@ -27,10 +28,10 @@ pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: &HtmlCanv
     let absolute_item_value = item / total_count;
 
     let item_height = absolute_item_value * height;
-    let item_width = width / total_count;
+    let item_width = (width - total_count * spacing) / total_count;
 
     let y = height - item_height;
-    let x = item_width * idx;
+    let x = item_width * idx + spacing * idx;
 
     ChartItem {
         x,
@@ -43,6 +44,7 @@ pub fn calculate_item(item: i32, idx: usize, total_count: f64, canvas: &HtmlCanv
 #[function_component(SortingGraphCanvas)]
 pub fn sorting_graph_canvas(props: &Props) -> Html {
     let data = props.data.clone();
+    let step_item = props.active_step_item;
     let str_to_js = |str: &str| JsValue::from(str);
     use_effect(move || {
         let document = web_sys::window().unwrap().document().unwrap();
@@ -66,6 +68,16 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
 
         let items_count = data.len() as f64;
 
+        let colored_items = match step_item {
+            SortType::Swap(idx1, idx2) => {
+                if idx1 == idx2 && idx1 == 0 {
+                    vec![]
+                } else {
+                    vec![idx1, idx2]
+                }
+            },
+            SortType::Set(idx, _value) => vec![idx],
+        };
         for (idx, &item) in data.iter().enumerate() {
             let ChartItem {
                 x,
@@ -73,10 +85,16 @@ pub fn sorting_graph_canvas(props: &Props) -> Html {
                 width,
                 height,
             } = calculate_item(item, idx, items_count, &canvas);
+            if colored_items.contains(&idx) {
+                context.set_fill_style(&str_to_js("#53c2da"));
+            }
             context.fill_rect(x, y, width, height);
+            context.set_fill_style(&str_to_js("#ff5733"));
         }
     });
     html! {
-        <canvas id="canvas" width={CHART_WIDTH.to_string()} height={CHART_HEIGHT.to_string()} />
+        <>
+            <canvas id="canvas" class="w-full block" width="950" height="500" />
+        </>
     }
 }
