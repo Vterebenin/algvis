@@ -27,6 +27,18 @@ body, html {
   color: $primaryText;
 }
 
+h1, h2 {
+  font-weight: bold;
+}
+
+h1 {
+  color: $accent;
+}
+
+body {
+  padding: 20px;
+}
+
 ul {
   list-style-type: circle;
 }
@@ -153,10 +165,3 @@ a.av-link:focus::before {
   text-decoration: underline;
 }
 
-h1, h2 {
-  font-weight: bold;
-}
-
-h1 {
-  color: $accent;
-}

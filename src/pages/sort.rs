@@ -84,7 +84,7 @@ pub fn sort() -> Html {
     };
 
     html! {
-        <div class="w-full flex justify-center items-center gap-6 mt-[100px]">
+        <div class="w-full flex flex-col-reverse md:flex-row justify-center items-center gap-6 md:mt-[100px]">
             <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full w-full max-w-[320px]">
                 <SortingConfig value={(*config).clone()} on_change={change_config} />
                 <div class="flex flex-col gap-2 my-5">
