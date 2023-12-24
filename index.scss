@@ -27,8 +27,11 @@ body, html {
   color: $primaryText;
 }
 
-p {
-  white-space: pre;
+ul {
+  list-style-type: circle;
+}
+li {
+  margin-left: 20px;
 }
 
 .av-day-toggle {
@@ -44,14 +47,14 @@ html.dark .av-night-toggle {
   display: none;
 }
 
-a {
+a.av-link {
   color: $primaryText;
   position: relative;
   cursor: pointer;
   z-index: 1;
 }
 
-a:before {
+a.av-link:before {
   content: '';
   position: absolute;
   z-index: -1;
@@ -65,10 +68,10 @@ a:before {
   transition: transform 0.2s ease-in-out;
 }
 
-a:hover::before,
-a:visited::before,
-a:active::before,
-a:focus::before {
+a.av-link:hover::before,
+a.av-link:visited::before,
+a.av-link:active::before,
+a.av-link:focus::before {
   transform: scaleX(1);
   transform-origin: center left;
 }
@@ -135,3 +138,25 @@ a:focus::before {
   &:required,&:invalid { box-shadow:none; }
 }
 
+.av-simple-link {
+  color: $accent;
+  position: relative;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.2s ease-out;
+}
+
+.av-simple-link:hover,
+.av-simple-link:active,
+.av-simple-link:focus {
+  color: $accentSecond;
+  text-decoration: underline;
+}
+
+h1, h2 {
+  font-weight: bold;
+}
+
+h1 {
+  color: $accent;
+}

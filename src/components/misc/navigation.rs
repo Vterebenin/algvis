@@ -21,13 +21,13 @@ pub fn navigation() -> Html {
                 <div class="flex gap-4">
                     <ThemeToggle />
                     <div class="flex gap-4 font-medium">
-                        <a onclick={handle_route.clone().reform(|_| &Route::Sort)}>{ "Sorting" }</a>
+                        <a class="av-link" onclick={handle_route.clone().reform(|_| &Route::Sort)}>{ "Sorting" }</a>
                         { 
                             // <a onclick={handle_route.clone().reform(|_| &Route::Maze)}>{ "Maze Runner" }</a> 
                             ""
                         }
-                        <a onclick={handle_route.clone().reform(|_| &Route::Home)}>{ "About" }</a>
-                        <a href="https://github.com/Vterebenin/algvis">{ "Github" }</a>
+                        <a class="av-link" onclick={handle_route.clone().reform(|_| &Route::Home)}>{ "About" }</a>
+                        <a class="av-link" href="https://github.com/Vterebenin/algvis">{ "Github" }</a>
                     </div>
                 </div>
             </nav>
