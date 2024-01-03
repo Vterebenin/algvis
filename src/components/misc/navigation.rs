@@ -3,7 +3,6 @@ use crate::router::Route;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-
 #[function_component(Navigation)]
 pub fn navigation() -> Html {
     let navigator = use_navigator().unwrap();
@@ -22,10 +21,7 @@ pub fn navigation() -> Html {
                     <ThemeToggle />
                     <div class="flex gap-4 font-medium">
                         <a class="av-link" onclick={handle_route.clone().reform(|_| &Route::Sort)}>{ "Sorting" }</a>
-                        { 
-                            // <a onclick={handle_route.clone().reform(|_| &Route::Maze)}>{ "Maze Runner" }</a> 
-                            ""
-                        }
+                        <a class="av-link" onclick={handle_route.clone().reform(|_| &Route::Maze)}>{ "Maze Runner" }</a>
                         <a class="av-link" onclick={handle_route.clone().reform(|_| &Route::Home)}>{ "About" }</a>
                         <a class="av-link" href="https://github.com/Vterebenin/algvis">{ "Github" }</a>
                     </div>
