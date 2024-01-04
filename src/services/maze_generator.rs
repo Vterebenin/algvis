@@ -17,9 +17,7 @@ impl Maze {
     pub fn new(width: usize, height: usize) -> Maze {
         let mut cells = vec![vec![Cell::Wall; width]; height];
         Maze::generate(&mut cells, 1, 1);
-        let mut maze = Maze {
-            cells,
-        };
+        let mut maze = Maze { cells };
         maze.set_entry_exit();
         maze
     }
@@ -34,7 +32,8 @@ impl Maze {
             let nx = x.wrapping_add(*dx);
             let ny = y.wrapping_add(*dy);
 
-            let fit = ny > 0 && ny < cells.len() as i32 && nx > 0 && nx < cells[ny as usize].len() as i32;
+            let fit =
+                ny > 0 && ny < cells.len() as i32 && nx > 0 && nx < cells[ny as usize].len() as i32;
             if fit && cells[ny as usize][nx as usize] == Cell::Wall {
                 let row = (y + dy / 2) as usize;
                 let col = (x + dx / 2) as usize;
@@ -67,7 +66,6 @@ impl Maze {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -76,7 +74,7 @@ mod tests {
     fn test_maze_generation() {
         let width = 30;
         let height = 30;
-        let mut maze = Maze::new(width, height);
+        let maze = Maze::new(width, height);
 
         // Check that the entry and exit points are correctly set
         assert_eq!(maze.cells[0][1], Cell::Entry);
@@ -92,16 +90,25 @@ mod tests {
         }
 
         // Check that there is a path from entry to exit
-        let has_path = is_path_between(&maze, (0, 1), (exit_row, exit_col));
+        let (path, has_path) = is_path_between(&maze, (0, 1), (exit_row, exit_col));
+        println!("{:?}", path);
         assert!(has_path);
     }
 
-    fn is_path_between(maze: &Maze, start: (usize, usize), end: (usize, usize)) -> bool {
+    fn is_path_between(maze: &Maze, start: (usize, usize), end: (usize, usize)) -> (Vec<(usize, usize)>, bool) {
         let mut visited = vec![vec![false; maze.cells[0].len()]; maze.cells.len()];
-        dfs_path_exists(maze, &mut visited, start, end)
+        let mut path = vec![];
+        let result = dfs_path_exists(maze, &mut visited, start, end, &mut path);
+        (path, result)
     }
 
-    fn dfs_path_exists(maze: &Maze, visited: &mut Vec<Vec<bool>>, current: (usize, usize), end: (usize, usize)) -> bool {
+    fn dfs_path_exists(
+        maze: &Maze,
+        visited: &mut Vec<Vec<bool>>,
+        current: (usize, usize),
+        end: (usize, usize),
+        path: &mut Vec<(usize, usize)>
+    ) -> bool {
         let (row, col) = current;
         if current == end {
             return true;
@@ -115,8 +122,13 @@ mod tests {
             let nr = (row as isize + dr) as usize;
             let nc = (col as isize + dc) as usize;
 
-            if nr < maze.cells.len() && nc < maze.cells[nr].len() && !visited[nr][nc] && maze.cells[nr][nc] != Cell::Wall {
-                if dfs_path_exists(maze, visited, (nr, nc), end) {
+            if nr < maze.cells.len()
+                && nc < maze.cells[nr].len()
+                && !visited[nr][nc]
+                && maze.cells[nr][nc] != Cell::Wall
+            {
+                if dfs_path_exists(maze, visited, (nr, nc), end, path) {
+                    path.push((row, col));
                     return true;
                 }
             }
@@ -125,4 +137,3 @@ mod tests {
         false
     }
 }
-

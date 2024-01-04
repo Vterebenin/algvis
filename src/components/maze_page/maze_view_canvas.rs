@@ -84,7 +84,7 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                 } = calculate_item(x_idx, y_idx, size_x, size_y, &canvas);
                 let item_of_maze = mazer.maze.cells[y_idx as usize][x_idx as usize];
                 let color = match item_of_maze {
-                    Cell::Wall => "#ff0000",
+                    Cell::Wall => "#00ffff",
                     Cell::Empty => "#000000",
                     Cell::Entry => "#ffff00",
                     Cell::Exit => "#00ff00"
