@@ -2,6 +2,8 @@ use std::collections::VecDeque;
 
 use crate::components::sorting_page::sorting_config::SortConfigValues;
 
+use super::maze_generator::Maze;
+
 #[derive(Clone, PartialEq, Debug, Copy)]
 pub enum RunType {
     Search(i32),
@@ -61,9 +63,10 @@ impl MazeAlgorithm {
 #[derive(Clone, PartialEq)]
 pub struct Mazer {
     pub steps: Vec<i32>,
-    current_step: usize,
+    pub maze: Maze,
     pub size_x: u32,
     pub size_y: u32,
+    current_step: usize,
 }
 
 impl Mazer {
@@ -73,7 +76,7 @@ impl Mazer {
             current_step: 0,
             size_y: 50,
             size_x: 50,
+            maze: Maze::new(50, 50),
         }
     }
-
 }

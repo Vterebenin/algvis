@@ -11,11 +11,12 @@ pub fn parse_string_to_i32_or_default(input: String, default: i32) -> i32 {
     }
 }
 
-pub fn shuffle(mut data: Vec<i32>) -> Vec<i32> {
+pub fn shuffle<T>(mut data: Vec<T>) -> Vec<T> {
     let mut rng = thread_rng();
     data.shuffle(&mut rng);
     data
 }
+
 pub fn get_new_generation(items_count: &i32) -> Vec<i32> {
     shuffle((1..=*items_count).collect())
 }

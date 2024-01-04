@@ -3,7 +3,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, console};
 use yew::prelude::*;
 
-use crate::services::mazer::{Mazer, RunType};
+use crate::services::{mazer::{Mazer, RunType}, maze_generator::Cell};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -68,7 +68,6 @@ pub fn maze_view_canvas(props: &Props) -> Html {
             .unwrap();
 
         context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
-        context.set_fill_style(&str_to_js("#ff5733"));
         context.fill();
         context.set_line_cap("round");
         context.set_line_join("round");
@@ -83,8 +82,18 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                     width,
                     height,
                 } = calculate_item(x_idx, y_idx, size_x, size_y, &canvas);
+                let item_of_maze = mazer.maze.cells[y_idx as usize][x_idx as usize];
+                let color = match item_of_maze {
+                    Cell::Wall => "#ff0000",
+                    Cell::Empty => "#000000",
+                    Cell::Entry => "#ffff00",
+                    Cell::Exit => "#00ff00"
+                };
+                context.set_fill_style(&str_to_js(color));
+                console::log_1(&str_to_js(format!("{:?}", item_of_maze).as_str()));
                 console::log_1(&str_to_js(format!("{} {}", width, height).as_str()));
                 context.fill_rect(x, y, width, height);
+                context.set_fill_style(&str_to_js("#000000"));
             }
         }
     });
