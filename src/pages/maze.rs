@@ -4,7 +4,9 @@ use crate::{services::mazer::Mazer, components::maze_page::maze_view_canvas::Maz
 
 #[function_component(Maze)]
 pub fn maze() -> Html {
-    let mazer: UseStateHandle<Mazer> = use_state(|| Mazer::new());
+    let mut mazer = Mazer::new();
+    mazer.solve();
+    let mazer: UseStateHandle<Mazer> = use_state(|| mazer);
 
     html! {
         <MazeViewCanvas

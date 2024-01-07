@@ -18,10 +18,10 @@ pub struct MazeItem {
 }
 
 pub fn calculate_item(
-    x_idx: u32,
-    y_idx: u32,
-    horizontal_items: u32,
-    vertical_items: u32,
+    x_idx: usize,
+    y_idx: usize,
+    horizontal_items: usize,
+    vertical_items: usize,
     canvas: &HtmlCanvasElement,
 ) -> MazeItem {
     let spacing = 1.;
@@ -82,16 +82,19 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                     width,
                     height,
                 } = calculate_item(x_idx, y_idx, size_x, size_y, &canvas);
-                let item_of_maze = mazer.maze.cells[y_idx as usize][x_idx as usize];
+                let (row, col) = (y_idx as usize, x_idx as usize);
+                let item_of_maze = mazer.maze.cells[row][col];
                 let color = match item_of_maze {
                     Cell::Wall => "#00ffff",
                     Cell::Empty => "#000000",
                     Cell::Entry => "#ffff00",
                     Cell::Exit => "#00ff00"
                 };
-                context.set_fill_style(&str_to_js(color));
-                console::log_1(&str_to_js(format!("{:?}", item_of_maze).as_str()));
-                console::log_1(&str_to_js(format!("{} {}", width, height).as_str()));
+                if mazer.path.contains(&(row, col)) {
+                    context.set_fill_style(&str_to_js("red"));
+                } else {
+                    context.set_fill_style(&str_to_js(color));
+                }
                 context.fill_rect(x, y, width, height);
                 context.set_fill_style(&str_to_js("#000000"));
             }

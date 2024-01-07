@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::components::sorting_page::sorting_config::SortConfigValues;
+use crate::{components::sorting_page::sorting_config::SortConfigValues, maze_solver_algorithms::dfs::is_path_between};
 
 use super::maze_generator::Maze;
 
@@ -64,19 +64,28 @@ impl MazeAlgorithm {
 pub struct Mazer {
     pub steps: Vec<i32>,
     pub maze: Maze,
-    pub size_x: u32,
-    pub size_y: u32,
+    pub size_x: usize,
+    pub size_y: usize,
+    pub path: Vec<(usize, usize)>,
     current_step: usize,
 }
 
 impl Mazer {
     pub fn new() -> Mazer {
+        let width = 25;
+        let height = 25;
         Self {
             steps: Vec::new(),
             current_step: 0,
-            size_y: 50,
-            size_x: 50,
-            maze: Maze::new(50, 50),
+            size_y: height,
+            size_x: width,
+            maze: Maze::new(width, height),
+            path: Vec::new(),
         }
+    }
+
+    pub fn solve(&mut self) {
+        let (path, _) = is_path_between(&self.maze, self.maze.entry, self.maze.exit);
+        self.path = path.clone();
     }
 }
