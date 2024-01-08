@@ -1,4 +1,3 @@
-use std::isize;
 use std::ops::RangeInclusive;
 
 use rand::distributions::uniform::SampleRange;
@@ -85,9 +84,6 @@ impl Maze {
             Orientation::Horizontal => {
                 // Horizontal walls on even y-coordinates
                 let range = start_y..start_y + height - 1;
-                if range.is_empty() {
-                    return;
-                }
                 let y = float_even(rand_num(range) as f32) as usize;
 
                 from = (start_x, y);
@@ -100,9 +96,6 @@ impl Maze {
             Orientation::Vertical => {
                 // Vertical walls on even x-coordinates
                 let range = start_x..start_x + width - 1;
-                if range.is_empty() {
-                    return;
-                }
                 let x = float_even(rand_num(range) as f32) as usize;
                 for y in start_y..end.1 {
                     self.cells[y][x] = Cell::Wall;
@@ -124,13 +117,17 @@ impl Maze {
             .collect::<Vec<&(usize, usize)>>();
 
         // Get random point from the vec of valid passage points
-        let p_len = 0..(odd_wall_points.len().max(3));
-        console::log_1(&format!("{}", odd_wall_points.len()).into());
-        let passage = odd_wall_points.get(rand_num(p_len));
+        if odd_wall_points.len() > 0 {
+            let p_len = 0..(odd_wall_points.len());
+            console::log_1(&format!("{}", odd_wall_points.len()).into());
+            let index = rand_num(p_len.clone());
+            let passage = odd_wall_points.get(rand_num(p_len));
 
-        // // Remove the point from the wall to create a passage
-        if let Some(passage) = passage {
-            self.cells[passage.1][passage.0] = Cell::Empty;
+            // // Remove the point from the wall to create a passage
+            if let Some(passage) = passage {
+                let point = wall_points[index.min(wall_points.len() - 1)];
+                self.cells[point.1][point.0] = Cell::Wall;
+            }
         }
 
         match orientation {
