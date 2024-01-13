@@ -3,7 +3,6 @@ use std::ops::RangeInclusive;
 use rand::distributions::uniform::SampleRange;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
-use web_sys::console;
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -119,7 +118,6 @@ impl Maze {
         // Get random point from the vec of valid passage points
         if odd_wall_points.len() > 0 {
             let p_len = 0..(odd_wall_points.len());
-            console::log_1(&format!("{}", odd_wall_points.len()).into());
             let index = rand_num(p_len.clone());
             let passage = odd_wall_points.get(rand_num(p_len));
 
@@ -172,33 +170,26 @@ fn get_orientation(width: usize, height: usize) -> Orientation {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use crate::maze_solver_algorithms::dfs::is_path_between;
-//
-//     use super::*;
-//
-//     #[test]
-//     fn test_maze_generation() {
-//         let width = 30;
-//         let height = 30;
-//         let maze = Maze::new(width, height);
-//
-//         // Check that the entry and exit points are correctly set
-//         assert_eq!(maze.cells[0][1], Cell::Entry);
-//         let exit_row = maze.cells.len() - 1;
-//         let exit_col = maze.cells[exit_row].len() - 2;
-//         assert_eq!(maze.cells[exit_row][exit_col], Cell::Exit);
-//
-//         // Check that the maze has the correct dimensions
-//         assert_eq!(maze.cells.len(), height);
-//         for row in maze.cells.iter() {
-//             assert_eq!(row.len(), width);
-//         }
-//
-//         // Check that there is a path from entry to exit
-//         let (path, has_path) = is_path_between(&maze, (0, 1), (exit_row, exit_col));
-//         println!("{:?}", path);
-//         assert!(has_path);
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use crate::maze_solver_algorithms::dfs::is_path_between;
+
+    use super::*;
+
+    #[test]
+    fn test_maze_generation() {
+        let width = 30;
+        let height = 30;
+        let maze = Maze::new(width, height);
+
+        // Check that the maze has the correct dimensions
+        assert_eq!(maze.cells.len(), height);
+        for row in maze.cells.iter() {
+            assert_eq!(row.len(), width);
+        }
+
+        // Check that there is a path from entry to exit
+        let (path, has_path) = is_path_between(&maze, maze.entry, maze.exit);
+        assert!(has_path);
+    }
+}
