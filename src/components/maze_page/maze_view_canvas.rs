@@ -13,7 +13,20 @@ pub struct Props {
     pub mazer: Mazer,
 }
 
-#[derive(Clone)]
+pub struct Coords {
+    x: i32,
+    y: i32,
+}
+
+impl Coords {
+    pub fn from(x: i32, y: i32) -> Self {
+        Coords {
+            x, y
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct MazeItem {
     x: f64,
     y: f64,
@@ -61,6 +74,19 @@ pub fn calculate_item(
     }
 }
 
+pub fn find_item_by_coords(point: Coords, maze_cells: &Vec<MazeItem>) -> Option<MazeItem> {
+    for cell in maze_cells {
+        if cell.x <= point.x as f64
+            && cell.x + cell.width >= point.x as f64  
+            && cell.y <= point.y as f64
+            && cell.y + cell.height >= point.y as f64
+        {
+            return Some(cell.clone());
+        }
+    }
+    None
+}
+
 #[function_component(MazeViewCanvas)]
 pub fn maze_view_canvas(props: &Props) -> Html {
     let maze_items: UseStateHandle<Vec<MazeItem>> = use_state(|| vec![]);
@@ -71,7 +97,7 @@ pub fn maze_view_canvas(props: &Props) -> Html {
     {
         let maze_items = maze_items.clone();
         let mut maze_items_value = vec![];
-        use_effect(move || {
+        use_effect_with_deps(move |_| {
             let document = web_sys::window().unwrap().document().unwrap();
             let canvas = document.get_element_by_id("canvas").unwrap();
             let canvas: HtmlCanvasElement = canvas
@@ -122,7 +148,9 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                 }
             }
             maze_items.set(maze_items_value);
-        });
+        },
+        ()
+        );
     }
 
     let onclick = {
@@ -136,8 +164,11 @@ pub fn maze_view_canvas(props: &Props) -> Html {
 
             let x = e.client_x() - rect.left() as i32;
             let y = e.client_y() - rect.top() as i32;
+            let coords = Coords::from(x, y);
 
-            console::log_1(&format!("x: {} y: {}", x, y).into());
+            if let Some(cell) = find_item_by_coords(coords, &maze_items) {
+                console::log_1(&format!("{:?}", cell).into());
+            }
         })
     };
     html! {
