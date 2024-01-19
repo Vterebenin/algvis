@@ -3,6 +3,7 @@ use std::ops::RangeInclusive;
 use rand::distributions::uniform::SampleRange;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
+use web_sys::console;
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -86,8 +87,8 @@ impl Maze {
                 let y = float_even(rand_num(range) as f32) as usize;
 
                 from = (start_x, y);
-                to = (width, y);
-                for x in start_x..end.0 {
+                to = (end.0, y);
+                for x in start_x..=end.0 {
                     self.cells[y][x] = Cell::Wall;
                     wall_points.push((x, y));
                 }
@@ -96,12 +97,12 @@ impl Maze {
                 // Vertical walls on even x-coordinates
                 let range = start_x..start_x + width - 1;
                 let x = float_even(rand_num(range) as f32) as usize;
-                for y in start_y..end.1 {
+                for y in start_y..=end.1 {
                     self.cells[y][x] = Cell::Wall;
                     wall_points.push((x, y));
                 }
                 from = (x, start_y);
-                to = (x, height);
+                to = (x, end.1);
             }
         }
 
@@ -118,13 +119,13 @@ impl Maze {
         // Get random point from the vec of valid passage points
         if odd_wall_points.len() > 0 {
             let p_len = 0..(odd_wall_points.len());
-            let index = rand_num(p_len.clone());
-            let passage = odd_wall_points.get(rand_num(p_len));
+            let passage = odd_wall_points[rand_num(p_len)];
 
             // // Remove the point from the wall to create a passage
-            if let Some(passage) = passage {
-                let point = wall_points[index.min(wall_points.len() - 1)];
-                self.cells[point.1][point.0] = Cell::Wall;
+            let passage_index = wall_points.iter().position(|coord| coord == passage);
+            if let Some(passage_index) = passage_index {
+                let point = wall_points[passage_index.min(wall_points.len() - 1)];
+                self.cells[point.1][point.0] = Cell::Empty;
             }
         }
 
@@ -149,10 +150,10 @@ impl Maze {
     fn set_entry_exit(&mut self) {
         self.cells[0][1] = Cell::Entry;
         let height = self.cells.len();
-        let col = self.cells[height - 2].len() - 3;
-        self.cells[height - 3][col] = Cell::Exit;
+        let col = self.cells[height - 1].len();
+        self.cells[height - 1][col - 2] = Cell::Exit;
         self.entry = (0, 1);
-        self.exit = (height - 3, col);
+        self.exit = (height - 1, col - 2);
     }
 }
 
