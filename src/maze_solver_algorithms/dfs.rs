@@ -1,9 +1,9 @@
-use crate::services::maze_generator::{Maze, Cell};
+use crate::{services::maze_generator::{Maze, Cell}, components::maze_page::maze_view_canvas::Coords};
 
 pub fn is_path_between(
     maze: &Maze,
-    start: (usize, usize),
-    end: (usize, usize),
+    start: Coords<usize>,
+    end: Coords<usize>,
 ) -> (Vec<(usize, usize)>, bool) {
     let mut visited = vec![vec![false; maze.cells[0].len()]; maze.cells.len()];
     let mut path = vec![];
@@ -14,11 +14,11 @@ pub fn is_path_between(
 pub fn dfs_path_exists(
     maze: &Maze,
     visited: &mut Vec<Vec<bool>>,
-    current: (usize, usize),
-    end: (usize, usize),
+    current: Coords<usize>,
+    end: Coords<usize>,
     path: &mut Vec<(usize, usize)>,
 ) -> bool {
-    let (row, col) = current;
+    let (row, col) = (current.y, current.x);
     if current == end {
         return true;
     }
@@ -36,7 +36,7 @@ pub fn dfs_path_exists(
             && !visited[nr][nc]
             && maze.cells[nr][nc] != Cell::Wall
         {
-            if dfs_path_exists(maze, visited, (nr, nc), end, path) {
+            if dfs_path_exists(maze, visited, Coords::from(nc, nr), end, path) {
                 path.push((row, col));
                 return true;
             }

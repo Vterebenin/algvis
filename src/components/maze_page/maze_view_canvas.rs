@@ -5,7 +5,7 @@ use yew::prelude::*;
 
 use crate::services::{
     maze_generator::Cell,
-    mazer::{Mazer, RunType},
+    mazer::Mazer,
 };
 
 #[derive(Properties, PartialEq)]
@@ -13,14 +13,15 @@ pub struct Props {
     pub mazer: Mazer,
 }
 
-pub struct Coords {
-    x: i32,
-    y: i32,
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub struct Coords<T> {
+    pub x: T,
+    pub y: T,
 }
 
-impl Coords {
-    pub fn from(x: i32, y: i32) -> Self {
-        Coords {
+impl<T> Coords<T> {
+    pub fn from(x: T, y: T) -> Self {
+        Coords::<T> {
             x, y
         }
     }
@@ -74,7 +75,7 @@ pub fn calculate_item(
     }
 }
 
-pub fn find_item_by_coords(point: Coords, maze_cells: &Vec<MazeItem>) -> Option<MazeItem> {
+pub fn find_item_by_coords(point: Coords<i32>, maze_cells: &Vec<MazeItem>) -> Option<MazeItem> {
     for cell in maze_cells {
         if cell.x <= point.x as f64
             && cell.x + cell.width >= point.x as f64  
