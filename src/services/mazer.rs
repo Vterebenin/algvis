@@ -64,8 +64,8 @@ impl MazeAlgorithm {
 pub struct Mazer {
     pub steps: Vec<i32>,
     pub maze: Maze,
-    pub size_x: usize,
-    pub size_y: usize,
+    pub width: usize,
+    pub height: usize,
     pub path: Vec<(usize, usize)>,
     current_step: usize,
 }
@@ -77,8 +77,8 @@ impl Mazer {
         Self {
             steps: Vec::new(),
             current_step: 0,
-            size_y: height,
-            size_x: width,
+            height,
+            width,
             maze: Maze::new(width, height),
             path: Vec::new(),
         }

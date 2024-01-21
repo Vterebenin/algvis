@@ -161,6 +161,12 @@ impl Maze {
         self.modify_cell(self.entry, Cell::Entry);
         self.modify_cell(self.exit, Cell::Exit);
     }
+
+    pub fn change_entry(&mut self, new_entry: Coords<usize>) {
+        self.modify_cell(self.entry, Cell::Empty);
+        self.entry = new_entry;
+        self.modify_cell(self.entry, Cell::Entry);
+    }
 }
 
 fn get_orientation(width: usize, height: usize) -> Orientation {
