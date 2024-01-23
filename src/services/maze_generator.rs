@@ -3,7 +3,8 @@ use std::ops::RangeInclusive;
 use rand::distributions::uniform::SampleRange;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
-use web_sys::console;
+
+use crate::components::maze_page::maze_view_canvas::Coords;
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -17,8 +18,8 @@ pub enum Cell {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Maze {
     pub cells: Vec<Vec<Cell>>,
-    pub entry: (usize, usize),
-    pub exit: (usize, usize),
+    pub entry: Coords<usize>,
+    pub exit: Coords<usize>,
     width: usize,
     height: usize,
 }
@@ -43,10 +44,12 @@ fn float_even(num: f32) -> f32 {
 impl Maze {
     pub fn new(width: usize, height: usize) -> Maze {
         let cells = vec![vec![Cell::Empty; width]; height];
+        let entry_point = Coords::from(1, 0);
+        let exit_point = Coords::from(width - 2, height - 1);
         let mut maze = Maze {
             cells,
-            entry: (0, 0),
-            exit: (0, 0),
+            entry: entry_point,
+            exit: exit_point,
             width,
             height,
         };
@@ -147,13 +150,22 @@ impl Maze {
         }
     }
 
+    fn modify_cell(&mut self, coords: Coords<usize>, value: Cell) -> Cell {
+        let y = coords.y as usize;
+        let x = coords.x as usize;
+        self.cells[y][x] = value;
+        self.cells[y][x]
+    }
+
     fn set_entry_exit(&mut self) {
-        self.cells[0][1] = Cell::Entry;
-        let height = self.cells.len();
-        let col = self.cells[height - 1].len();
-        self.cells[height - 1][col - 2] = Cell::Exit;
-        self.entry = (0, 1);
-        self.exit = (height - 1, col - 2);
+        self.modify_cell(self.entry, Cell::Entry);
+        self.modify_cell(self.exit, Cell::Exit);
+    }
+
+    pub fn change_entry(&mut self, new_entry: Coords<usize>) {
+        self.modify_cell(self.entry, Cell::Empty);
+        self.entry = new_entry;
+        self.modify_cell(self.entry, Cell::Entry);
     }
 }
 
@@ -190,7 +202,7 @@ mod tests {
         }
 
         // Check that there is a path from entry to exit
-        let (path, has_path) = is_path_between(&maze, maze.entry, maze.exit);
+        let (path, has_path, _visited) = is_path_between(&maze, maze.entry, maze.exit);
         assert!(has_path);
     }
 }
