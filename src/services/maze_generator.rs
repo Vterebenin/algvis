@@ -202,7 +202,7 @@ mod tests {
         }
 
         // Check that there is a path from entry to exit
-        let (path, has_path) = is_path_between(&maze, maze.entry, maze.exit);
+        let (path, has_path, _visited) = is_path_between(&maze, maze.entry, maze.exit);
         assert!(has_path);
     }
 }

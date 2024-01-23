@@ -1,9 +1,62 @@
-use std::f64;
+use std::{f64, slice::Iter};
 use wasm_bindgen::prelude::*;
 use web_sys::{console, CanvasRenderingContext2d, Element, HtmlCanvasElement, HtmlElement};
 use yew::prelude::*;
 
 use crate::services::{maze_generator::Cell, mazer::Mazer};
+
+#[derive(Debug)]
+pub enum MazeCellColors {
+    Visited,
+    Path,
+    Empty,
+    Wall,
+    Entry,
+    Exit,
+}
+
+impl MazeCellColors {
+    pub fn iterator() -> Iter<'static, MazeCellColors> {
+        static CELL_COLORS: [MazeCellColors; 6] = [
+            MazeCellColors::Visited,
+            MazeCellColors::Path,
+            MazeCellColors::Empty,
+            MazeCellColors::Wall,
+            MazeCellColors::Entry,
+            MazeCellColors::Exit,
+        ];
+        CELL_COLORS.iter()
+    }
+    pub fn as_names(&self) -> &'static str {
+        match self {
+            MazeCellColors::Empty => "Empty",
+            MazeCellColors::Visited => "Visited",
+            MazeCellColors::Path => "Path",
+            MazeCellColors::Wall => "Wall",
+            MazeCellColors::Entry => "Entry",
+            MazeCellColors::Exit => "Exit",
+        }
+    }
+
+    pub fn as_colors(&self) -> &'static str {
+        match self {
+            MazeCellColors::Empty => "#E6E6E6",   // Lighter Gray
+            MazeCellColors::Visited => "#99CC99", // Light Green
+            MazeCellColors::Path => "#FFD700",    // Gold
+            MazeCellColors::Wall => "#993366",    // Mauve
+            MazeCellColors::Entry => "#FF6347",   // Tomato
+            MazeCellColors::Exit => "#4B0082",    // Indigo
+        }
+    }
+    pub fn convert_maze_type_to_color(cell: Cell) -> MazeCellColors {
+        match cell {
+            Cell::Wall => MazeCellColors::Wall,
+            Cell::Empty => MazeCellColors::Empty,
+            Cell::Entry => MazeCellColors::Entry,
+            Cell::Exit => MazeCellColors::Exit,
+        }
+    }
+}
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -138,24 +191,20 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                         let maze_cell_type = mazer.maze.cells[row][col];
                         maze_item.current_type = maze_cell_type;
                         maze_items_value.push(maze_item);
-                        let color = match maze_cell_type {
-                            Cell::Wall => "#00ffff",
-                            Cell::Empty => "#000000",
-                            Cell::Entry => "#0000ff",
-                            Cell::Exit => "#00ff00",
-                        };
+                        let mut color = MazeCellColors::convert_maze_type_to_color(maze_cell_type);
                         if mazer.path.contains(&(row, col)) && maze_cell_type != Cell::Entry {
-                            context.set_fill_style(&str_to_js("pink"));
-                        } else {
-                            context.set_fill_style(&str_to_js(color));
+                            color = MazeCellColors::Path;
+                        } else if mazer.visited[row][col] && maze_cell_type != Cell::Entry {
+                            color = MazeCellColors::Visited;
                         }
+                        context.set_fill_style(&str_to_js(color.as_colors()));
                         context.fill_rect(x, y, width, height);
                         context.set_fill_style(&str_to_js("#000000"));
                     }
                 }
                 maze_items.set(maze_items_value);
             },
-            (props.mazer.clone()),
+            props.mazer.clone(),
         );
     }
 
@@ -179,9 +228,22 @@ pub fn maze_view_canvas(props: &Props) -> Html {
         })
     };
     html! {
-        <>
-            {"Hey there, this section is still highly WIP, dont expect much"}
+        <div class="flex justify-between">
+            <div>
+                <div class="mb-2">
+                    {"Hey there, this section is still highly WIP, dont expect much"}
+                </div>
+                <div class="mb-2">
+                    {"List of colors:"}
+                </div>
+                <ul class="m-0 list-none">
+                    {MazeCellColors::iterator().map(|color| html! {
+                        <li class="m-0"><span class="relative top-[3px] rounded-full inline-block w-4 h-4" style={format!("background-color: {};", color.as_colors())}></span>{" - "}{color.as_names()}</li>
+                     }).collect::<Html>()}
+                </ul>
+
+            </div>
             <canvas id="canvas" onclick={onclick} class="w-full block" width="950" height="500" />
-        </>
+        </div>
     }
 }

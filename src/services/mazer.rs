@@ -36,6 +36,7 @@ impl MazeAlgorithmsEnum {
 }
 
 struct MazeAlgorithm;
+
 impl MazeAlgorithm {
     pub fn new() -> Self {
         Self
@@ -67,6 +68,7 @@ pub struct Mazer {
     pub width: usize,
     pub height: usize,
     pub path: Vec<(usize, usize)>,
+    pub visited: Vec<Vec<bool>>,
     current_step: usize,
 }
 
@@ -81,11 +83,13 @@ impl Mazer {
             width,
             maze: Maze::new(width, height),
             path: Vec::new(),
+            visited: Vec::new(),
         }
     }
 
     pub fn solve(&mut self) {
-        let (path, _) = is_path_between(&self.maze, self.maze.entry, self.maze.exit);
-        self.path = path.clone();
+        let (path, _, visited) = is_path_between(&self.maze, self.maze.entry, self.maze.exit);
+        self.path = path;
+        self.visited = visited;
     }
 }

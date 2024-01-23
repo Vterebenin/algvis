@@ -4,11 +4,11 @@ pub fn is_path_between(
     maze: &Maze,
     start: Coords<usize>,
     end: Coords<usize>,
-) -> (Vec<(usize, usize)>, bool) {
+) -> (Vec<(usize, usize)>, bool, Vec<Vec<bool>>) {
     let mut visited = vec![vec![false; maze.cells[0].len()]; maze.cells.len()];
     let mut path = vec![];
     let result = dfs_path_exists(maze, &mut visited, start, end, &mut path);
-    (path, result)
+    (path, result, visited)
 }
 
 pub fn dfs_path_exists(
