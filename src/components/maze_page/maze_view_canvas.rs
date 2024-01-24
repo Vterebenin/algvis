@@ -202,6 +202,33 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                         context.set_fill_style(&str_to_js("#000000"));
                     }
                 }
+                if mazer.path.len() > 1 {
+                    for path_index in 1..mazer.path.len() {
+                        let prev_path_item = &mazer.path[path_index - 1];
+                        let path_item = mazer.path[path_index];
+                        // todo: lets just make it a hash someday?
+                        let prev_maze_item = maze_items_value.iter().find(|item| {
+                            item.row == prev_path_item.0 && item.col == prev_path_item.1
+                        });
+                        let maze_item = maze_items_value
+                            .iter()
+                            .find(|item| item.row == path_item.0 && item.col == path_item.1);
+                        let prev_maze_item = prev_maze_item.unwrap();
+                        let maze_item = maze_item.unwrap();
+                        let prev_x = prev_maze_item.x + prev_maze_item.width / 2.;
+                        let prev_y = prev_maze_item.y + prev_maze_item.height / 2.;
+                        let next_x = maze_item.x + maze_item.width / 2.;
+                        let next_y = maze_item.y + maze_item.height / 2.;
+                        context.begin_path();
+                        console::log_1(&format!("prev: {} - {}", prev_x, prev_y).into());
+                        console::log_1(&format!("next: {} - {}", next_x, next_y).into());
+                        context.move_to(prev_x, prev_y);
+                        context.line_to(next_x, next_y);
+                        context.stroke();
+
+                        console::log_1(&format!("{:?}", maze_item).into());
+                    }
+                }
                 maze_items.set(maze_items_value);
             },
             props.mazer.clone(),
