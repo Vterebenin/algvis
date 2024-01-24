@@ -183,65 +183,79 @@ pub fn create_path_line(
     }
 }
 
+fn str_to_js(str: &str) -> JsValue {
+    JsValue::from(str)
+}
+
+pub fn draw_maze(
+    context: &CanvasRenderingContext2d,
+    mazer: &Mazer,
+    maze_cells: &mut Vec<MazeItem>,
+    canvas: &HtmlCanvasElement,
+) {
+    context.set_fill_style(&str_to_js("#000000"));
+    for x_idx in 0..mazer.width {
+        for y_idx in 0..mazer.height {
+            let mut maze_item = calculate_item(x_idx, y_idx, mazer.width, mazer.height, &canvas);
+            let MazeItem {
+                x,
+                y,
+                width,
+                height,
+                ..
+            } = maze_item;
+
+            let (row, col) = (y_idx as usize, x_idx as usize);
+            let maze_cell_type = mazer.maze.cells[row][col];
+            maze_item.current_type = maze_cell_type;
+            maze_cells.push(maze_item);
+            let mut color = MazeCellColors::convert_maze_type_to_color(maze_cell_type);
+            if mazer.path.contains(&(row, col)) && maze_cell_type != Cell::Entry {
+                color = MazeCellColors::Path;
+            } else if mazer.visited[row][col] && maze_cell_type != Cell::Entry {
+                color = MazeCellColors::Visited;
+            }
+            context.set_fill_style(&str_to_js(color.as_colors()));
+            context.fill_rect(x, y, width, height);
+            context.set_fill_style(&str_to_js("#000000"));
+        }
+    }
+}
+
+fn get_canvas_and_context() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("canvas").unwrap();
+    let canvas: HtmlCanvasElement = canvas
+        .dyn_into::<HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
+
+    let context = canvas
+        .get_context("2d")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<CanvasRenderingContext2d>()
+        .unwrap();
+
+    context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
+    context.fill();
+    context.set_line_cap("round");
+    context.set_line_join("round");
+    context.set_fill_style(&str_to_js("#000000"));
+    (canvas, context)
+}
+
 #[function_component(MazeViewCanvas)]
 pub fn maze_view_canvas(props: &Props) -> Html {
     let maze_items: UseStateHandle<Vec<MazeItem>> = use_state(|| vec![]);
     let mazer = props.mazer.clone();
-    let size_x = props.mazer.width;
-    let size_y = props.mazer.height;
-    let str_to_js = |str: &str| JsValue::from(str);
     {
         let maze_items = maze_items.clone();
         let mut maze_items_value = vec![];
         use_effect_with_deps(
             move |_| {
-                let document = web_sys::window().unwrap().document().unwrap();
-                let canvas = document.get_element_by_id("canvas").unwrap();
-                let canvas: HtmlCanvasElement = canvas
-                    .dyn_into::<HtmlCanvasElement>()
-                    .map_err(|_| ())
-                    .unwrap();
-
-                let context = canvas
-                    .get_context("2d")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_into::<CanvasRenderingContext2d>()
-                    .unwrap();
-
-                context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
-                context.fill();
-                context.set_line_cap("round");
-                context.set_line_join("round");
-
-                // field
-                context.set_fill_style(&str_to_js("#000000"));
-                for x_idx in 0..mazer.width {
-                    for y_idx in 0..mazer.height {
-                        let mut maze_item = calculate_item(x_idx, y_idx, size_x, size_y, &canvas);
-                        let MazeItem {
-                            x,
-                            y,
-                            width,
-                            height,
-                            ..
-                        } = maze_item;
-
-                        let (row, col) = (y_idx as usize, x_idx as usize);
-                        let maze_cell_type = mazer.maze.cells[row][col];
-                        maze_item.current_type = maze_cell_type;
-                        maze_items_value.push(maze_item);
-                        let mut color = MazeCellColors::convert_maze_type_to_color(maze_cell_type);
-                        if mazer.path.contains(&(row, col)) && maze_cell_type != Cell::Entry {
-                            color = MazeCellColors::Path;
-                        } else if mazer.visited[row][col] && maze_cell_type != Cell::Entry {
-                            color = MazeCellColors::Visited;
-                        }
-                        context.set_fill_style(&str_to_js(color.as_colors()));
-                        context.fill_rect(x, y, width, height);
-                        context.set_fill_style(&str_to_js("#000000"));
-                    }
-                }
+                let (canvas, context) = get_canvas_and_context();
+                draw_maze(&context, &mazer, &mut maze_items_value, &canvas);
                 create_path_line(&context, &mazer, &maze_items_value);
                 maze_items.set(maze_items_value);
             },
