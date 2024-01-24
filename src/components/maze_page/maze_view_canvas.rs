@@ -1,62 +1,8 @@
-use std::{f64, slice::Iter};
 use wasm_bindgen::prelude::*;
-use web_sys::{console, CanvasRenderingContext2d, Element, HtmlCanvasElement, HtmlElement};
+use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement};
 use yew::prelude::*;
 
 use crate::services::{maze_generator::Cell, mazer::Mazer};
-
-#[derive(Debug)]
-pub enum MazeCellColors {
-    Visited,
-    Path,
-    Empty,
-    Wall,
-    Entry,
-    Exit,
-}
-
-impl MazeCellColors {
-    pub fn iterator() -> Iter<'static, MazeCellColors> {
-        static CELL_COLORS: [MazeCellColors; 6] = [
-            MazeCellColors::Visited,
-            MazeCellColors::Path,
-            MazeCellColors::Empty,
-            MazeCellColors::Wall,
-            MazeCellColors::Entry,
-            MazeCellColors::Exit,
-        ];
-        CELL_COLORS.iter()
-    }
-    pub fn as_names(&self) -> &'static str {
-        match self {
-            MazeCellColors::Empty => "Empty",
-            MazeCellColors::Visited => "Visited",
-            MazeCellColors::Path => "Path",
-            MazeCellColors::Wall => "Wall",
-            MazeCellColors::Entry => "Entry",
-            MazeCellColors::Exit => "Exit",
-        }
-    }
-
-    pub fn as_colors(&self) -> &'static str {
-        match self {
-            MazeCellColors::Empty => "#E6E6E6",   // Lighter Gray
-            MazeCellColors::Visited => "#99CC99", // Light Green
-            MazeCellColors::Path => "#FFD700",    // Gold
-            MazeCellColors::Wall => "#993366",    // Mauve
-            MazeCellColors::Entry => "#FF6347",   // Tomato
-            MazeCellColors::Exit => "#4B0082",    // Indigo
-        }
-    }
-    pub fn convert_maze_type_to_color(cell: Cell) -> MazeCellColors {
-        match cell {
-            Cell::Wall => MazeCellColors::Wall,
-            Cell::Empty => MazeCellColors::Empty,
-            Cell::Entry => MazeCellColors::Entry,
-            Cell::Exit => MazeCellColors::Exit,
-        }
-    }
-}
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -143,65 +89,116 @@ pub fn find_item_by_coords(point: Coords<i32>, maze_cells: &Vec<MazeItem>) -> Op
     None
 }
 
+pub fn create_path_line(
+    context: &CanvasRenderingContext2d,
+    mazer: &Mazer,
+    maze_cells: &Vec<MazeItem>,
+) {
+    if mazer.path.len() <= 1 {
+        return;
+    }
+    for path_index in 0..mazer.path.len() {
+        let prev_path_item = if path_index == 0 {
+            (mazer.maze.exit.y, mazer.maze.exit.x)
+        } else {
+            mazer.path[path_index - 1]
+        };
+        let path_item = mazer.path[path_index];
+        // todo: lets just make it a hash someday?
+        // todo: also lets say that paths are coords instead of (usize, usize)
+        let prev_maze_item = maze_cells
+            .iter()
+            .find(|item| item.row == prev_path_item.0 && item.col == prev_path_item.1);
+        let maze_item = maze_cells
+            .iter()
+            .find(|item| item.row == path_item.0 && item.col == path_item.1);
+        let prev_maze_item = prev_maze_item.unwrap();
+        let maze_item = maze_item.unwrap();
+        let prev_x = prev_maze_item.x + prev_maze_item.width / 2.;
+        let prev_y = prev_maze_item.y + prev_maze_item.height / 2.;
+        let next_x = maze_item.x + maze_item.width / 2.;
+        let next_y = maze_item.y + maze_item.height / 2.;
+        context.begin_path();
+        context.move_to(prev_x, prev_y);
+        context.line_to(next_x, next_y);
+        context.stroke();
+    }
+}
+
+fn str_to_js(str: &str) -> JsValue {
+    JsValue::from(str)
+}
+
+pub fn draw_maze(
+    context: &CanvasRenderingContext2d,
+    mazer: &Mazer,
+    maze_cells: &mut Vec<MazeItem>,
+    canvas: &HtmlCanvasElement,
+) {
+    context.set_fill_style(&str_to_js("#000000"));
+    for x_idx in 0..mazer.width {
+        for y_idx in 0..mazer.height {
+            let mut maze_item = calculate_item(x_idx, y_idx, mazer.width, mazer.height, &canvas);
+            let MazeItem {
+                x,
+                y,
+                width,
+                height,
+                ..
+            } = maze_item;
+
+            let (row, col) = (y_idx as usize, x_idx as usize);
+            let mut cell = mazer.maze.cells[row][col];
+            if mazer.path.contains(&(row, col)) && cell != Cell::Entry {
+                cell = Cell::Path;
+            } else if mazer.visited[row][col] && cell != Cell::Entry {
+                cell = Cell::Visited;
+            }
+            context.set_fill_style(&str_to_js(cell.as_color()));
+            context.fill_rect(x, y, width, height);
+            context.set_fill_style(&str_to_js("#000000"));
+
+            maze_item.current_type = cell;
+            maze_cells.push(maze_item);
+        }
+    }
+}
+
+fn get_canvas_and_context() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("canvas").unwrap();
+    let canvas: HtmlCanvasElement = canvas
+        .dyn_into::<HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
+
+    let context = canvas
+        .get_context("2d")
+        .unwrap()
+        .unwrap()
+        .dyn_into::<CanvasRenderingContext2d>()
+        .unwrap();
+
+    context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
+    context.fill();
+    context.set_line_cap("round");
+    context.set_line_join("round");
+    context.set_fill_style(&str_to_js("#000000"));
+    (canvas, context)
+}
+
 #[function_component(MazeViewCanvas)]
 pub fn maze_view_canvas(props: &Props) -> Html {
     let maze_items: UseStateHandle<Vec<MazeItem>> = use_state(|| vec![]);
     let mazer = props.mazer.clone();
-    let size_x = props.mazer.width;
-    let size_y = props.mazer.height;
-    let str_to_js = |str: &str| JsValue::from(str);
     {
         let maze_items = maze_items.clone();
         let mut maze_items_value = vec![];
         use_effect_with_deps(
             move |_| {
-                let document = web_sys::window().unwrap().document().unwrap();
-                let canvas = document.get_element_by_id("canvas").unwrap();
-                let canvas: HtmlCanvasElement = canvas
-                    .dyn_into::<HtmlCanvasElement>()
-                    .map_err(|_| ())
-                    .unwrap();
-
-                let context = canvas
-                    .get_context("2d")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_into::<CanvasRenderingContext2d>()
-                    .unwrap();
-
-                context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
-                context.fill();
-                context.set_line_cap("round");
-                context.set_line_join("round");
-
-                // field
-                context.set_fill_style(&str_to_js("#000000"));
-                for x_idx in 0..mazer.width {
-                    for y_idx in 0..mazer.height {
-                        let mut maze_item = calculate_item(x_idx, y_idx, size_x, size_y, &canvas);
-                        let MazeItem {
-                            x,
-                            y,
-                            width,
-                            height,
-                            ..
-                        } = maze_item;
-
-                        let (row, col) = (y_idx as usize, x_idx as usize);
-                        let maze_cell_type = mazer.maze.cells[row][col];
-                        maze_item.current_type = maze_cell_type;
-                        maze_items_value.push(maze_item);
-                        let mut color = MazeCellColors::convert_maze_type_to_color(maze_cell_type);
-                        if mazer.path.contains(&(row, col)) && maze_cell_type != Cell::Entry {
-                            color = MazeCellColors::Path;
-                        } else if mazer.visited[row][col] && maze_cell_type != Cell::Entry {
-                            color = MazeCellColors::Visited;
-                        }
-                        context.set_fill_style(&str_to_js(color.as_colors()));
-                        context.fill_rect(x, y, width, height);
-                        context.set_fill_style(&str_to_js("#000000"));
-                    }
-                }
+                let (canvas, context) = get_canvas_and_context();
+                draw_maze(&context, &mazer, &mut maze_items_value, &canvas);
+                create_path_line(&context, &mazer, &maze_items_value);
                 maze_items.set(maze_items_value);
             },
             props.mazer.clone(),
@@ -228,22 +225,6 @@ pub fn maze_view_canvas(props: &Props) -> Html {
         })
     };
     html! {
-        <div class="flex justify-between">
-            <div>
-                <div class="mb-2">
-                    {"Hey there, this section is still highly WIP, dont expect much"}
-                </div>
-                <div class="mb-2">
-                    {"List of colors:"}
-                </div>
-                <ul class="m-0 list-none">
-                    {MazeCellColors::iterator().map(|color| html! {
-                        <li class="m-0"><span class="relative top-[3px] rounded-full inline-block w-4 h-4" style={format!("background-color: {};", color.as_colors())}></span>{" - "}{color.as_names()}</li>
-                     }).collect::<Html>()}
-                </ul>
-
-            </div>
-            <canvas id="canvas" onclick={onclick} class="w-full block" width="950" height="500" />
-        </div>
+        <canvas id="canvas" onclick={onclick} class="w-full block" width="950" height="500" />
     }
 }

@@ -1,4 +1,5 @@
 use std::ops::RangeInclusive;
+use std::slice::Iter;
 
 use rand::distributions::uniform::SampleRange;
 use rand::distributions::uniform::SampleUniform;
@@ -9,10 +10,47 @@ use crate::components::maze_page::maze_view_canvas::Coords;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Cell {
+    Visited,
+    Path,
     Empty,
     Wall,
     Entry,
     Exit,
+}
+
+impl Cell {
+    pub fn iterator() -> Iter<'static, Cell> {
+        static CELL_COLORS: [Cell; 6] = [
+            Cell::Visited,
+            Cell::Path,
+            Cell::Empty,
+            Cell::Wall,
+            Cell::Entry,
+            Cell::Exit,
+        ];
+        CELL_COLORS.iter()
+    }
+    pub fn as_name(&self) -> &'static str {
+        match self {
+            Cell::Empty => "Empty",
+            Cell::Visited => "Visited",
+            Cell::Path => "Path",
+            Cell::Wall => "Wall",
+            Cell::Entry => "Entry",
+            Cell::Exit => "Exit",
+        }
+    }
+
+    pub fn as_color(&self) -> &'static str {
+        match self {
+            Cell::Empty => "#E6E6E6",   // Lighter Gray
+            Cell::Visited => "#99CC99", // Light Green
+            Cell::Path => "#FFD700",    // Gold
+            Cell::Wall => "#993366",    // Mauve
+            Cell::Entry => "#FF6347",   // Tomato
+            Cell::Exit => "#4B0082",    // Indigo
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -150,6 +188,12 @@ impl Maze {
         }
     }
 
+    fn get_cell(&mut self, coords: Coords<usize>) -> Cell {
+        let y = coords.y as usize;
+        let x = coords.x as usize;
+        self.cells[y][x]
+    }
+
     fn modify_cell(&mut self, coords: Coords<usize>, value: Cell) -> Cell {
         let y = coords.y as usize;
         let x = coords.x as usize;
@@ -160,6 +204,22 @@ impl Maze {
     fn set_entry_exit(&mut self) {
         self.modify_cell(self.entry, Cell::Entry);
         self.modify_cell(self.exit, Cell::Exit);
+    }
+
+    pub fn change_exit(&mut self, exit: Coords<usize>) {
+        self.modify_cell(self.exit, Cell::Empty);
+        self.exit = exit;
+        self.modify_cell(self.exit, Cell::Exit);
+    }
+
+    pub fn create_wall_or_empty(&mut self, coords: Coords<usize>) {
+        let current = self.get_cell(coords);
+        let next = if current == Cell::Wall {
+            Cell::Empty
+        } else {
+            Cell::Wall
+        };
+        self.modify_cell(coords, next);
     }
 
     pub fn change_entry(&mut self, new_entry: Coords<usize>) {
