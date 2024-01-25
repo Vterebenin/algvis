@@ -1,3 +1,4 @@
+use std::io::Empty;
 use std::ops::RangeInclusive;
 use std::slice::Iter;
 
@@ -53,14 +54,6 @@ impl Cell {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Maze {
-    pub cells: Vec<Vec<Cell>>,
-    pub entry: Coords<usize>,
-    pub exit: Coords<usize>,
-    width: usize,
-    height: usize,
-}
 
 #[derive(Clone, Copy, PartialEq)]
 enum Orientation {
@@ -79,25 +72,56 @@ fn float_even(num: f32) -> f32 {
     (num / 2.0).ceil() * 2.0
 }
 
+fn generate_new_maze(width: usize, height: usize) -> Maze {
+    let cells = vec![vec![Cell::Empty; width]; height];
+    let entry_point = Coords::from(1, 0);
+    let exit_point = Coords::from(width - 2, height - 1);
+    let mut maze = Maze {
+        cells,
+        entry: entry_point,
+        exit: exit_point,
+        width,
+        height,
+    };
+    maze.generate_side_walls();
+    maze.generate(1, width - 2, 1, height - 2);
+    maze.set_entry_exit();
+    maze
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Maze {
+    pub cells: Vec<Vec<Cell>>,
+    pub entry: Coords<usize>,
+    pub exit: Coords<usize>,
+    width: usize,
+    height: usize,
+}
+
 impl Maze {
     pub fn new(width: usize, height: usize) -> Maze {
-        let cells = vec![vec![Cell::Empty; width]; height];
-        let entry_point = Coords::from(1, 0);
-        let exit_point = Coords::from(width - 2, height - 1);
-        let mut maze = Maze {
-            cells,
-            entry: entry_point,
-            exit: exit_point,
-            width,
-            height,
-        };
-        maze.generate_side_walls();
-        maze.generate(1, width - 2, 1, height - 2);
-        maze.set_entry_exit();
-        maze
+        generate_new_maze(width, height)
+    }
+
+    pub fn reset(&mut self) {
+        self.cells = vec![vec![Cell::Empty; self.width]; self.height];
+        self.generate_side_walls();
+        self.generate(1, self.width - 2, 1, self.height - 2);
+        self.change_exit(self.exit);
+        self.change_entry(self.entry);
+    }
+    pub fn clear_walls(&mut self) {
+        for row in self.cells.iter_mut() {
+            for cell in row.iter_mut() {
+                if cell == &Cell::Wall {
+                    *cell = Cell::Empty;
+                }
+            }
+        }
     }
 
     fn generate_side_walls(&mut self) {
+        // todo: this is shit, we need to refactor it, man
         for row in 0..self.width {
             for col in 0..self.height {
                 if col == 0 || row == 0 || row == self.height - 1 || col == self.width - 1 {

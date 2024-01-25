@@ -48,6 +48,24 @@ pub fn maze() -> Html {
     } else {
         (*cell_type).as_name()
     };
+    let clear_walls = {
+        let mazer = mazer.clone();
+        Callback::from(move |_| {
+            let mut mazer_value = (*mazer).clone();
+            mazer_value.maze.clear_walls();
+            mazer_value.solve();
+            mazer.set(mazer_value);
+        })
+    };
+    let regenerate = {
+        let mazer = mazer.clone();
+        Callback::from(move |_| {
+            let mut mazer_value = (*mazer).clone();
+            mazer_value.maze.reset();
+            mazer_value.solve();
+            mazer.set(mazer_value);
+        })
+    };
 
     html! {
         <div class="flex justify-between gap-10">
@@ -65,6 +83,14 @@ pub fn maze() -> Html {
                     </TheButton>
                     <TheButton onclick={set_entry.clone().reform(|_| &Cell::Wall)}>
                         {"Wall"}
+                    </TheButton>
+                </div>
+                <div>
+                    <TheButton class="mt-5" onclick={clear_walls}>
+                        {"Clear All Walls"}
+                    </TheButton>
+                    <TheButton class="mt-5" onclick={regenerate}>
+                        {"Regenerate"}
                     </TheButton>
                 </div>
             </div>
