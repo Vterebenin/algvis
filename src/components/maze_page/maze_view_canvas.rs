@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::*;
-use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement};
+use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement, console};
 use yew::prelude::*;
 
 use crate::services::{maze_generator::Cell, mazer::Mazer};
@@ -218,6 +218,7 @@ pub fn maze_view_canvas(props: &Props) -> Html {
             let x = e.client_x() - rect.left() as i32;
             let y = e.client_y() - rect.top() as i32;
             let coords = Coords::from(x, y);
+            console::log_1(&format!("{} {}", x, y).into());
 
             if let Some(cell) = find_item_by_coords(coords, &maze_items) {
                 on_cell_click.emit(cell);
@@ -225,6 +226,6 @@ pub fn maze_view_canvas(props: &Props) -> Html {
         })
     };
     html! {
-        <canvas id="canvas" onclick={onclick} class="w-full block" width="950" height="500" />
+        <canvas id="canvas" onclick={onclick} class="h-[500px] w-full block" width="950" height="500" />
     }
 }
