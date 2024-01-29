@@ -1,3 +1,4 @@
+use std::collections::hash_map::Entry;
 use std::io::Empty;
 use std::ops::RangeInclusive;
 use std::slice::Iter;
@@ -7,7 +8,6 @@ use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 
 use crate::components::maze_page::maze_view_canvas::Coords;
-
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Cell {
@@ -54,7 +54,6 @@ impl Cell {
     }
 }
 
-
 #[derive(Clone, Copy, PartialEq)]
 enum Orientation {
     Horizontal,
@@ -78,22 +77,18 @@ fn generate_new_maze(width: usize, height: usize) -> Maze {
     let exit_point = Coords::from(width - 2, height - 1);
     let mut maze = Maze {
         cells,
-        entry: entry_point,
-        exit: exit_point,
         width,
         height,
     };
     maze.generate_side_walls();
     maze.generate(1, width - 2, 1, height - 2);
-    maze.set_entry_exit();
+    maze.set_entry_exit(entry_point, exit_point);
     maze
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Maze {
     pub cells: Vec<Vec<Cell>>,
-    pub entry: Coords<usize>,
-    pub exit: Coords<usize>,
     width: usize,
     height: usize,
 }
@@ -104,12 +99,33 @@ impl Maze {
     }
 
     pub fn reset(&mut self) {
+        let prev_exit = self.exit();
+        let prev_entry = self.entry();
         self.cells = vec![vec![Cell::Empty; self.width]; self.height];
         self.generate_side_walls();
         self.generate(1, self.width - 2, 1, self.height - 2);
-        self.change_exit(self.exit);
-        self.change_entry(self.entry);
+        self.modify_cell(prev_exit, Cell::Exit);
+        self.modify_cell(prev_entry, Cell::Entry);
     }
+
+    fn get_first_coords_of(&self, cell_type: Cell) -> Coords<usize> {
+        for (y, row) in self.cells.iter().enumerate() {
+            for (x, col) in row.iter().enumerate() {
+                if *col == cell_type {
+                    return Coords::from(x, y);
+                }
+            }
+        }
+        Coords::from(0, 0)
+    }
+    pub fn exit(&self) -> Coords<usize> {
+        self.get_first_coords_of(Cell::Exit)
+    }
+
+    pub fn entry(&self) -> Coords<usize> {
+        self.get_first_coords_of(Cell::Entry)
+    }
+
     pub fn clear_walls(&mut self) {
         for row in self.cells.iter_mut() {
             for cell in row.iter_mut() {
@@ -225,15 +241,9 @@ impl Maze {
         self.cells[y][x]
     }
 
-    fn set_entry_exit(&mut self) {
-        self.modify_cell(self.entry, Cell::Entry);
-        self.modify_cell(self.exit, Cell::Exit);
-    }
-
-    pub fn change_exit(&mut self, exit: Coords<usize>) {
-        self.modify_cell(self.exit, Cell::Empty);
-        self.exit = exit;
-        self.modify_cell(self.exit, Cell::Exit);
+    fn set_entry_exit(&mut self, entry: Coords<usize>, exit: Coords<usize>) {
+        self.modify_cell(entry, Cell::Entry);
+        self.modify_cell(exit, Cell::Exit);
     }
 
     pub fn create_wall_or_empty(&mut self, coords: Coords<usize>) {
@@ -246,10 +256,31 @@ impl Maze {
         self.modify_cell(coords, next);
     }
 
-    pub fn change_entry(&mut self, new_entry: Coords<usize>) {
-        self.modify_cell(self.entry, Cell::Empty);
-        self.entry = new_entry;
-        self.modify_cell(self.entry, Cell::Entry);
+    pub fn swap_cells(&mut self, cell1: Coords<usize>, cell2: Coords<usize>) {
+        let old1 = self.get_cell(cell1);
+        let old2 = self.get_cell(cell2);
+        self.modify_cell(cell1, old2);
+        self.modify_cell(cell2, old1);
+    }
+
+    pub fn change_entry(&mut self, entry: Coords<usize>) {
+        let prev_entry = self.entry();
+        if self.get_cell(entry) == Cell::Exit {
+            self.swap_cells(entry, prev_entry);
+            return;
+        }
+        self.modify_cell(prev_entry, Cell::Empty);
+        self.modify_cell(entry, Cell::Entry);
+    }
+
+    pub fn change_exit(&mut self, exit: Coords<usize>) {
+        let prev_exit = self.exit();
+        if self.get_cell(exit) == Cell::Entry {
+            self.swap_cells(exit, prev_exit);
+            return;
+        }
+        self.modify_cell(prev_exit, Cell::Empty);
+        self.modify_cell(exit, Cell::Exit);
     }
 }
 
@@ -286,7 +317,7 @@ mod tests {
         }
 
         // Check that there is a path from entry to exit
-        let (path, has_path, _visited) = is_path_between(&maze, maze.entry, maze.exit);
+        let (path, has_path, _visited) = is_path_between(&maze, maze.entry(), maze.exit());
         assert!(has_path);
     }
 }

@@ -88,7 +88,7 @@ impl Mazer {
     }
 
     pub fn solve(&mut self) {
-        let (path, _, visited) = is_path_between(&self.maze, self.maze.entry, self.maze.exit);
+        let (path, _, visited) = is_path_between(&self.maze, self.maze.entry(), self.maze.exit());
         self.path = path;
         self.visited = visited;
     }

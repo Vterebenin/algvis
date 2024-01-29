@@ -4,6 +4,8 @@ use yew::prelude::*;
 
 use crate::services::{maze_generator::Cell, mazer::Mazer};
 
+const BLACK: &str = "#000000";
+
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub mazer: Mazer,
@@ -11,14 +13,18 @@ pub struct Props {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub struct Coords<T> {
+pub struct Coords<T: Copy> {
     pub x: T,
     pub y: T,
 }
 
-impl<T> Coords<T> {
+impl<T: Copy> Coords<T> {
     pub fn from(x: T, y: T) -> Self {
         Coords::<T> { x, y }
+    }
+
+    pub fn as_row_col(&self) -> (T, T) {
+        (self.y, self.x)
     }
 }
 
@@ -33,7 +39,7 @@ pub struct MazeItem {
     current_type: Cell,
 }
 
-const SPACING: f64 = 1.;
+const SPACING: f64 = 0.;
 
 pub fn get_item_sizes_by_items(
     canvas: &HtmlCanvasElement,
@@ -99,7 +105,7 @@ pub fn create_path_line(
     }
     for path_index in 0..mazer.path.len() {
         let prev_path_item = if path_index == 0 {
-            (mazer.maze.exit.y, mazer.maze.exit.x)
+            mazer.maze.exit().as_row_col()
         } else {
             mazer.path[path_index - 1]
         };
@@ -135,7 +141,7 @@ pub fn draw_maze(
     maze_cells: &mut Vec<MazeItem>,
     canvas: &HtmlCanvasElement,
 ) {
-    context.set_fill_style(&str_to_js("#000000"));
+    context.set_fill_style(&str_to_js(BLACK));
     for x_idx in 0..mazer.width {
         for y_idx in 0..mazer.height {
             let mut maze_item = calculate_item(x_idx, y_idx, mazer.width, mazer.height, &canvas);
@@ -156,7 +162,7 @@ pub fn draw_maze(
             }
             context.set_fill_style(&str_to_js(cell.as_color()));
             context.fill_rect(x, y, width, height);
-            context.set_fill_style(&str_to_js("#000000"));
+            context.set_fill_style(&str_to_js(BLACK));
 
             maze_item.current_type = cell;
             maze_cells.push(maze_item);
@@ -183,7 +189,7 @@ fn get_canvas_and_context() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
     context.fill();
     context.set_line_cap("round");
     context.set_line_join("round");
-    context.set_fill_style(&str_to_js("#000000"));
+    context.set_fill_style(&str_to_js(BLACK));
     (canvas, context)
 }
 
