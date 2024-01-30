@@ -1,5 +1,6 @@
 use web_sys::console;
 use yew::prelude::*;
+use yew_hooks::use_interval;
 
 use crate::{
     components::maze_page::maze_legend::MazeLegend,
@@ -25,8 +26,8 @@ pub fn maze() -> Html {
             console::log_1(&format!("test {:?}", cell).into());
             let new_cell = Coords::from(cell.col, cell.row);
             match cell_type_value {
-                Cell::Visited => todo!(),
-                Cell::Path => todo!(),
+                Cell::Visited => unreachable!(),
+                Cell::Path => unreachable!(),
                 Cell::Empty => mazer_value.maze.create_wall_or_empty(new_cell),
                 Cell::Wall => mazer_value.maze.create_wall_or_empty(new_cell),
                 Cell::Entry => mazer_value.maze.change_entry(new_cell),
@@ -67,6 +68,28 @@ pub fn maze() -> Html {
         })
     };
 
+    {
+        let mazer = mazer.clone();
+        let tick_time = (*mazer).steps_time as u32;
+
+        use_interval(
+            move || {
+                console::log_1(&format!("hm?").into());
+                let mut mazer_value = (*mazer).clone();
+                mazer_value.tick();
+                mazer.set(mazer_value);
+            },
+            tick_time,
+        );
+    }
+    
+    let play = {
+        let mazer_value = (*mazer).clone();
+        Callback::from(move |_| {
+            console::log_1(&format!("{:?}", mazer_value.steps).into());
+        })
+    };
+
     html! {
         <div class="flex justify-between gap-10">
             <div>
@@ -91,6 +114,11 @@ pub fn maze() -> Html {
                     </TheButton>
                     <TheButton class="mt-5" onclick={regenerate}>
                         {"Regenerate"}
+                    </TheButton>
+                </div>
+                <div>
+                    <TheButton class="mt-5" onclick={play}>
+                        {"Play"}
                     </TheButton>
                 </div>
             </div>

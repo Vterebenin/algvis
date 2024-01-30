@@ -155,11 +155,11 @@ pub fn draw_maze(
 
             let (row, col) = (y_idx as usize, x_idx as usize);
             let mut cell = mazer.maze.cells[row][col];
-            if mazer.path.contains(&(row, col)) && cell != Cell::Entry {
-                cell = Cell::Path;
-            } else if mazer.visited[row][col] && cell != Cell::Entry {
-                cell = Cell::Visited;
-            }
+            // if mazer.path.contains(&(row, col)) && cell != Cell::Entry {
+            //     cell = Cell::Path;
+            // } else if mazer.visited[row][col] && cell != Cell::Entry {
+            //     cell = Cell::Visited;
+            // }
             context.set_fill_style(&str_to_js(cell.as_color()));
             context.fill_rect(x, y, width, height);
             context.set_fill_style(&str_to_js(BLACK));

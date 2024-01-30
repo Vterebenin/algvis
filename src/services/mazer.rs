@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 
-use crate::{components::sorting_page::sorting_config::SortConfigValues, maze_solver_algorithms::dfs::is_path_between};
+use crate::{components::{sorting_page::sorting_config::SortConfigValues, maze_page::maze_view_canvas::Coords}, maze_solver_algorithms::dfs::is_path_between, helpers::MAX_REFRESH_RATE};
 
-use super::maze_generator::Maze;
+use super::maze_generator::{Maze, Cell};
 
 #[derive(Clone, PartialEq, Debug, Copy)]
 pub enum RunType {
@@ -61,35 +61,80 @@ impl MazeAlgorithm {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(PartialEq, Clone, Debug)]
+pub struct MazeStep {
+    pub coords: Coords<usize>,
+    pub cell_type: Cell,
+}
+
+#[derive(Clone, PartialEq, Debug)]
 pub struct Mazer {
-    pub steps: Vec<i32>,
     pub maze: Maze,
     pub width: usize,
     pub height: usize,
     pub path: Vec<(usize, usize)>,
     pub visited: Vec<Vec<bool>>,
+    pub steps: VecDeque<MazeStep>,
+    pub steps_time: f32,
+    initial_cells: Vec<Vec<Cell>>,
     current_step: usize,
+    active_step: u32,
+    is_playing: bool,
 }
 
 impl Mazer {
     pub fn new() -> Mazer {
-        let width = 25;
-        let height = 25;
+        let width = 35;
+        let height = 35;
         Self {
-            steps: Vec::new(),
+            steps: VecDeque::new(),
             current_step: 0,
+            active_step: 0,
+            steps_time: 10.,
+            is_playing: true,
             height,
             width,
             maze: Maze::new(width, height),
             path: Vec::new(),
             visited: Vec::new(),
+            initial_cells: Vec::new(),
         }
     }
 
     pub fn solve(&mut self) {
-        let (path, _, visited) = is_path_between(&self.maze, self.maze.entry(), self.maze.exit());
+        self.initial_cells = self.maze.cells.clone();
+        let (path, _, visited, steps) = is_path_between(&self.maze, self.maze.entry(), self.maze.exit());
         self.path = path;
+        self.steps = steps;
         self.visited = visited;
+    }
+
+    pub fn tick(&mut self) {
+        let max_steps = self.steps.len() as u32;
+        if self.active_step >= max_steps {
+            // Clear interval when the end is reached.
+            self.steps_time = 0.;
+            self.is_playing = false;
+            return ();
+        } 
+        let step_increment = (MAX_REFRESH_RATE / self.steps_time).ceil() as u32;
+        let new_step_index = self.active_step + step_increment;
+        let new_step_index = if new_step_index >= max_steps {
+            max_steps
+        } else {
+            new_step_index
+        };
+        self.maze.cells = self.get_output_by_step(new_step_index);
+        self.active_step = new_step_index;
+    }
+
+    fn get_output_by_step(&mut self, step: u32) -> Vec<Vec<Cell>> {
+        let mut steps = self.steps.clone();
+        let mut data = self.initial_cells.clone();
+        for _ in 0..step {
+            let MazeStep { coords, cell_type } = steps.pop_back().unwrap();
+            data[coords.y][coords.x] = cell_type;
+        }
+        data
     }
 }
