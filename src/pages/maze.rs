@@ -2,6 +2,7 @@ use web_sys::console;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
+use crate::components::maze_page::maze_config::{MazeConfig, MazeConfigValues};
 use crate::{
     components::maze_page::maze_legend::MazeLegend,
     components::{
@@ -10,18 +11,22 @@ use crate::{
     },
     services::{maze_generator::Cell, mazer::Mazer},
 };
+
 #[function_component(Maze)]
 pub fn maze() -> Html {
-    let mut mazer = Mazer::new();
+    let config = MazeConfigValues::new();
+    let mut mazer = Mazer::new(&config);
     mazer.solve();
     let mazer: UseStateHandle<Mazer> = use_state(|| mazer);
-    let cell_type: UseStateHandle<Cell> = use_state(|| Cell::Entry);
+    let config: UseStateHandle<MazeConfigValues> = use_state(|| config);
 
     let on_cell_click = {
         let mazer = mazer.clone();
-        let cell_type_value = (*cell_type).clone();
+        let config = config.clone();
 
         Callback::from(move |cell: MazeItem| {
+            let config_value = (*config).clone();
+            let cell_type_value = config_value.cell_type;
             let mut mazer_value = (*mazer).clone();
             console::log_1(&format!("test {:?}", cell).into());
             let new_cell = Coords::from(cell.col, cell.row);
@@ -36,18 +41,6 @@ pub fn maze() -> Html {
             mazer_value.solve();
             mazer.set(mazer_value);
         })
-    };
-
-    let set_entry = {
-        let cell_type = cell_type.clone();
-        Callback::from(move |cell: &Cell| {
-            cell_type.set(*cell);
-        })
-    };
-    let current_type_name = if (*cell_type).clone() == Cell::Wall {
-        "Wall or Empty"
-    } else {
-        (*cell_type).as_name()
     };
     let clear_walls = {
         let mazer = mazer.clone();
@@ -68,13 +61,29 @@ pub fn maze() -> Html {
         })
     };
 
+    let set_config = {
+        let config = config.clone();
+        Callback::from(move |v: MazeConfigValues| {
+            config.set(v);
+        })
+    };
+
+    let play_or_pause = {
+        let mazer = mazer.clone();
+        let config_value = (*config).clone();
+        Callback::from(move |_| {
+            let mut mazer_value = (*mazer).clone();
+            mazer_value.play_or_pause(&config_value);
+            mazer.set(mazer_value);
+        })
+    };
+
     {
         let mazer = mazer.clone();
         let tick_time = (*mazer).steps_time as u32;
 
         use_interval(
             move || {
-                console::log_1(&format!("hm?").into());
                 let mut mazer_value = (*mazer).clone();
                 mazer_value.tick();
                 mazer.set(mazer_value);
@@ -82,33 +91,13 @@ pub fn maze() -> Html {
             tick_time,
         );
     }
-    
-    let play = {
-        let mazer_value = (*mazer).clone();
-        Callback::from(move |_| {
-            console::log_1(&format!("{:?}", mazer_value.steps).into());
-        })
-    };
+    let is_playing = (*mazer).is_playing;
 
     html! {
         <div class="flex justify-between gap-10">
             <div>
-                <MazeLegend />
-                <div>{"You can change the maze entry or exit by clicking on a cell"}</div>
-                <div>{"If you click right now, you will change "}<b>{current_type_name}</b></div>
-                <div>{"Change cell type on click here:"}</div>
-                <div class="flex mt-5 gap-2 justify-between">
-                    <TheButton onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
-                        {"Entry"}
-                    </TheButton>
-                    <TheButton onclick={set_entry.clone().reform(|_| &Cell::Exit)}>
-                        {"Exit"}
-                    </TheButton>
-                    <TheButton onclick={set_entry.clone().reform(|_| &Cell::Wall)}>
-                        {"Wall"}
-                    </TheButton>
-                </div>
-                <div>
+                <MazeConfig value={(*config).clone()} on_change={set_config} />
+                <div class="flex gap-5">
                     <TheButton class="mt-5" onclick={clear_walls}>
                         {"Clear All Walls"}
                     </TheButton>
@@ -117,10 +106,17 @@ pub fn maze() -> Html {
                     </TheButton>
                 </div>
                 <div>
-                    <TheButton class="mt-5" onclick={play}>
-                        {"Play"}
+                    <TheButton class="my-5" onclick={play_or_pause}>
+                     {
+                         if is_playing {
+                            {"Pause"}
+                         } else {
+                            {"Play"}
+                         }
+                     }
                     </TheButton>
                 </div>
+                <MazeLegend />
             </div>
             <MazeViewCanvas
                 mazer={(*mazer).clone()}
