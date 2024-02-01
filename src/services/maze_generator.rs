@@ -4,7 +4,9 @@ use std::slice::Iter;
 use rand::distributions::uniform::SampleRange;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
+use web_sys::console;
 
+use crate::components::maze_page::maze_config::MazeConfigValues;
 use crate::components::maze_page::maze_view_canvas::Coords;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -69,6 +71,10 @@ fn float_even(num: f32) -> f32 {
     (num / 2.0).ceil() * 2.0
 }
 
+fn get_default_entry_exit(width: usize, height: usize) -> (usize, usize, usize, usize) {
+    return (1, width - 2, 1, height - 2)
+}
+
 fn generate_new_maze(width: usize, height: usize) -> Maze {
     let cells = vec![vec![Cell::Empty; width]; height];
     let entry_point = Coords::from(1, 0);
@@ -96,12 +102,12 @@ impl Maze {
         generate_new_maze(width, height)
     }
 
-    pub fn reset(&mut self) {
+    pub fn reset(&mut self, config: &MazeConfigValues) {
         let prev_exit = self.exit();
         let prev_entry = self.entry();
         self.cells = vec![vec![Cell::Empty; self.width]; self.height];
         self.generate_side_walls();
-        self.generate(1, self.width - 2, 1, self.height - 2);
+        self.generate(1, config.width - 2, 1, config.height - 2);
         self.modify_cell(prev_exit, Cell::Exit);
         self.modify_cell(prev_entry, Cell::Entry);
     }

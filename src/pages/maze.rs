@@ -53,9 +53,10 @@ pub fn maze() -> Html {
     };
     let regenerate = {
         let mazer = mazer.clone();
+        let config_value = (*config).clone();
         Callback::from(move |_| {
             let mut mazer_value = (*mazer).clone();
-            mazer_value.maze.reset();
+            mazer_value.reset(&config_value);
             mazer_value.solve();
             mazer.set(mazer_value);
         })
@@ -80,7 +81,7 @@ pub fn maze() -> Html {
 
     {
         let mazer = mazer.clone();
-        let tick_time = (*mazer).steps_time as u32;
+        let tick_time = (*mazer).tick_time() as u32;
 
         use_interval(
             move || {

@@ -1,4 +1,6 @@
-use std::collections::{VecDeque, HashMap};
+use std::collections::{HashMap, VecDeque};
+
+use web_sys::console;
 
 use crate::{
     components::{
@@ -89,9 +91,7 @@ pub struct Mazer {
     pub steps: VecDeque<MazeStep>,
     pub steps_time: f32,
     pub is_playing: bool,
-    steps_memo: HashMap<u32, Vec<Vec<Cell>>>,
     initial_cells: Vec<Vec<Cell>>,
-    current_step: usize,
     active_step: u32,
 }
 
@@ -101,7 +101,6 @@ impl Mazer {
         let height = config.height;
         Self {
             steps: VecDeque::new(),
-            current_step: 0,
             active_step: 0,
             steps_time: 0.,
             is_playing: false,
@@ -111,7 +110,6 @@ impl Mazer {
             path: Vec::new(),
             visited: Vec::new(),
             initial_cells: Vec::new(),
-            steps_memo: HashMap::new(),
         }
     }
 
@@ -134,7 +132,7 @@ impl Mazer {
             self.reset(config);
             return;
         }
-        if self.is_playing == false && self.steps_time > 0. {
+        if self.steps_time > 0. {
             return;
         }
 
@@ -142,7 +140,8 @@ impl Mazer {
     }
 
     pub fn reset(&mut self, config: &MazeConfigValues) {
-        self.maze.cells = self.initial_cells.clone();
+        self.maze.reset(config);
+        self.is_playing = false;
         self.set_step(0);
         self.calculate_time(config);
     }
@@ -162,7 +161,8 @@ impl Mazer {
             // Clear interval when the end is reached.
             self.steps_time = 0.;
             self.is_playing = false;
-            return ();
+            self.set_step(0);
+            return;
         }
         let step_increment = (MAX_REFRESH_RATE / self.steps_time).ceil() as u32;
         let new_step_index = self.active_step + step_increment;
@@ -180,24 +180,29 @@ impl Mazer {
     }
 
     fn calculate_time(&mut self, config: &MazeConfigValues) {
+        console::log_1(&format!("{} {}", config.time_overall, self.steps.len()).into());
         self.steps_time = config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
     }
 
-    fn get_output_by_step(&mut self, step: u32) -> Vec<Vec<Cell>> {
-        if let Some(result) = self.steps_memo.get(&step) {
-            return result.clone();
+    pub fn tick_time(&self) -> u32 {
+        if self.steps_time == 0. || !self.is_playing {
+            return 0;
         }
+        self.steps_time.max(MAX_REFRESH_RATE) as u32
+    }
 
+    fn get_output_by_step(&mut self, step: u32) -> Vec<Vec<Cell>> {
         let mut steps = self.steps.clone();
         let mut data = self.initial_cells.clone();
         for _ in 0..step {
             if let Some(MazeStep { coords, cell_type }) = steps.pop_back() {
-                data[coords.y][coords.x] = cell_type;
+                if data[coords.y][coords.x] != Cell::Entry {
+                    data[coords.y][coords.x] = cell_type;
+                }
             } else {
                 break; // If steps are exhausted, stop updating data
             }
         }
-        self.steps_memo.insert(step, data.clone());
         data
     }
 }
