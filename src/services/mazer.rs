@@ -139,6 +139,14 @@ impl Mazer {
         self.calculate_time(config);
     }
 
+    pub fn generate_new_maze(&mut self, config: &MazeConfigValues) {
+        self.maze.reset(config);
+        self.width = config.width; 
+        self.height = config.height;
+        self.is_playing = false;
+        self.active_step = 0;
+    }
+
     pub fn reset(&mut self, config: &MazeConfigValues) {
         self.maze.reset(config);
         self.is_playing = false;
@@ -153,6 +161,7 @@ impl Mazer {
         self.path = path;
         self.steps = steps;
         self.visited = visited;
+        // todo: make a solved version of cells
     }
 
     pub fn tick(&mut self) {

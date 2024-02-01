@@ -105,7 +105,7 @@ impl Maze {
     pub fn reset(&mut self, config: &MazeConfigValues) {
         let prev_exit = self.exit();
         let prev_entry = self.entry();
-        self.cells = vec![vec![Cell::Empty; self.width]; self.height];
+        self.cells = vec![vec![Cell::Empty; config.width]; config.height];
         self.generate_side_walls();
         self.generate(1, config.width - 2, 1, config.height - 2);
         self.modify_cell(prev_exit, Cell::Exit);

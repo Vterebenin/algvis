@@ -51,12 +51,12 @@ pub fn maze() -> Html {
             mazer.set(mazer_value);
         })
     };
-    let regenerate = {
+    let generate = {
         let mazer = mazer.clone();
         let config_value = (*config).clone();
         Callback::from(move |_| {
             let mut mazer_value = (*mazer).clone();
-            mazer_value.reset(&config_value);
+            mazer_value.generate_new_maze(&config_value);
             mazer_value.solve();
             mazer.set(mazer_value);
         })
@@ -102,8 +102,8 @@ pub fn maze() -> Html {
                     <TheButton class="mt-5" onclick={clear_walls}>
                         {"Clear All Walls"}
                     </TheButton>
-                    <TheButton class="mt-5" onclick={regenerate}>
-                        {"Regenerate"}
+                    <TheButton class="mt-5" onclick={generate}>
+                        {"Generate"}
                     </TheButton>
                 </div>
                 <div>
