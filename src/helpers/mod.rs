@@ -1,6 +1,9 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+pub const MAX_REFRESH_RATE: f32 = 33.33;
+pub const MS_IN_SECS: f32 = 1000.;
+
 pub fn parse_string_to_i32_or_default(input: String, default: i32) -> i32 {
     let parsed_result = input.parse::<i32>();
 

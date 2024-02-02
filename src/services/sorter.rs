@@ -1,16 +1,13 @@
 use std::collections::VecDeque;
 
 use crate::components::sorting_page::sorting_config::SortConfigValues;
-use crate::helpers::get_new_generation;
+use crate::helpers::{MAX_REFRESH_RATE, get_new_generation, MS_IN_SECS};
 use crate::sorting_algorithms::bubble_sort::bubble_sort;
 use crate::sorting_algorithms::heap_sort::heap_sort;
 use crate::sorting_algorithms::insertion_sort::insertion_sort;
 use crate::sorting_algorithms::merge_sort::merge_sort;
 use crate::sorting_algorithms::quick_sort::quick_sort;
 use crate::sorting_algorithms::shell_sort::shell_sort;
-
-const MS_IN_SECS: f32 = 1000.;
-const MAX_REFRESH_RATE: f32 = 33.33;
 
 #[derive(Clone, PartialEq, Debug, Copy)]
 pub enum SortType<T> {
