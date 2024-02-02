@@ -128,7 +128,10 @@ impl Mazer {
 
     pub fn play(&mut self, config: &MazeConfigValues) {
         self.is_playing = true;
-        if self.active_step as usize == self.steps.len() {
+        if self.active_step == self.max_steps() - 1 {
+            self.set_step(0);
+        }
+        if self.active_step >= self.max_steps() {
             self.reset(config);
             return;
         }
@@ -150,7 +153,7 @@ impl Mazer {
     pub fn reset(&mut self, config: &MazeConfigValues) {
         self.maze.reset(config);
         self.is_playing = false;
-        self.set_step(0);
+        self.set_step(self.max_steps() - 1);
         self.calculate_time(config);
     }
 
@@ -161,16 +164,20 @@ impl Mazer {
         self.path = path;
         self.steps = steps;
         self.visited = visited;
-        // todo: make a solved version of cells
+        self.set_step(self.max_steps() - 1);
+    }
+
+    fn max_steps(&self) -> u32 {
+        return self.steps.len() as u32;
     }
 
     pub fn tick(&mut self) {
-        let max_steps = self.steps.len() as u32;
+        let max_steps = self.max_steps();
         if self.active_step >= max_steps {
             // Clear interval when the end is reached.
             self.steps_time = 0.;
             self.is_playing = false;
-            self.set_step(0);
+            self.set_step(self.max_steps() - 1);
             return;
         }
         let step_increment = (MAX_REFRESH_RATE / self.steps_time).ceil() as u32;

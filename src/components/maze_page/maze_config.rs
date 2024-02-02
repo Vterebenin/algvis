@@ -21,9 +21,9 @@ impl MazeConfigValues {
     pub fn new() -> Self {
         let default_algorithm = "dfs".to_string();
         Self {
-            time_overall: 10,
-            width: 31,
-            height: 31,
+            time_overall: 2,
+            width: 35,
+            height: 35,
             cell_type: Cell::Entry,
             current_algorithm_name: default_algorithm.clone(),
             alg_options: vec![SelectOption {

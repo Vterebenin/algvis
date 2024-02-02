@@ -154,12 +154,7 @@ pub fn draw_maze(
             } = maze_item;
 
             let (row, col) = (y_idx as usize, x_idx as usize);
-            let mut cell = mazer.maze.cells[row][col];
-            // if mazer.path.contains(&(row, col)) && cell != Cell::Entry {
-            //     cell = Cell::Path;
-            // } else if mazer.visited[row][col] && cell != Cell::Entry {
-            //     cell = Cell::Visited;
-            // }
+            let cell = mazer.maze.cells[row][col];
             context.set_fill_style(&str_to_js(cell.as_color()));
             context.fill_rect(x, y, width, height);
             context.set_fill_style(&str_to_js(BLACK));
@@ -204,7 +199,9 @@ pub fn maze_view_canvas(props: &Props) -> Html {
             move |_| {
                 let (canvas, context) = get_canvas_and_context();
                 draw_maze(&context, &mazer, &mut maze_items_value, &canvas);
-                create_path_line(&context, &mazer, &maze_items_value);
+                if !mazer.is_playing {
+                    create_path_line(&context, &mazer, &maze_items_value);
+                }
                 maze_items.set(maze_items_value);
             },
             props.mazer.clone(),
