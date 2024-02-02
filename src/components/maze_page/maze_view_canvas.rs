@@ -199,7 +199,7 @@ pub fn maze_view_canvas(props: &Props) -> Html {
             move |_| {
                 let (canvas, context) = get_canvas_and_context();
                 draw_maze(&context, &mazer, &mut maze_items_value, &canvas);
-                if !mazer.is_playing {
+                if mazer.show_path_line() {
                     create_path_line(&context, &mazer, &maze_items_value);
                 }
                 maze_items.set(maze_items_value);
@@ -221,7 +221,6 @@ pub fn maze_view_canvas(props: &Props) -> Html {
             let x = e.client_x() - rect.left() as i32;
             let y = e.client_y() - rect.top() as i32;
             let coords = Coords::from(x, y);
-            console::log_1(&format!("{} {}", x, y).into());
 
             if let Some(cell) = find_item_by_coords(coords, &maze_items) {
                 on_cell_click.emit(cell);

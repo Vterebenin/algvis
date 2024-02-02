@@ -10,8 +10,7 @@ use crate::services::maze_generator::Cell;
 pub struct MazeConfigValues {
     pub time_overall: i32,
     pub current_algorithm_name: String,
-    pub width: usize,
-    pub height: usize,
+    pub size: usize,
     pub cell_type: Cell,
     pub current_step: u32,
     alg_options: Vec<SelectOption>,
@@ -22,8 +21,7 @@ impl MazeConfigValues {
         let default_algorithm = "dfs".to_string();
         Self {
             time_overall: 2,
-            width: 35,
-            height: 35,
+            size: 35,
             cell_type: Cell::Entry,
             current_algorithm_name: default_algorithm.clone(),
             alg_options: vec![SelectOption {
@@ -48,25 +46,16 @@ pub fn maze_config(props: &Props) -> Html {
     let config = use_state(|| MazeConfigValues::new());
 
     // todo: somehow manage to update values via single function?
-    let change_width = {
+    let change_size = {
         let config = config.clone();
         Callback::from(move |value: String| {
             let mut config_value = (*config).clone();
             let result = parse_string_to_i32_or_default(value, 0);
-            config_value.width = result as usize;
+            config_value.size = result as usize;
             config.set(config_value);
         })
     };
 
-    let change_height = {
-        let config = config.clone();
-        Callback::from(move |value: String| {
-            let mut config_value = (*config).clone();
-            let result = parse_string_to_i32_or_default(value, 0);
-            config_value.height = result as usize;
-            config.set(config_value);
-        })
-    };
 
     let change_time_overall = {
         let config = config.clone();
@@ -119,28 +108,12 @@ pub fn maze_config(props: &Props) -> Html {
 
     html! {
         <>
-            <div>{"Current type on click: "}<b>{current_type_name}</b></div>
-            <div class="flex mt-5 gap-2 justify-between">
-                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
-                    {"Entry"}
-                </TheButton>
-                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Exit)}>
-                    {"Exit"}
-                </TheButton>
-                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Wall)}>
-                    {"Wall"}
-                </TheButton>
-            </div>
+            <h2 class="text-xl">{"Configuration: "}</h2>
             <div>
                 <TheInput
-                    label="Width"
-                    value={config.width.to_string()}
-                    set_value={change_width}
-                />
-                <TheInput
-                    label="Height"
-                    value={config.height.to_string()}
-                    set_value={change_height}
+                    label="Size"
+                    value={config.size.to_string()}
+                    set_value={change_size}
                 />
                 <TheInput
                     label="Time to run (seconds)"
@@ -153,6 +126,18 @@ pub fn maze_config(props: &Props) -> Html {
                     on_change={change_current_algorithm}
                     options={config.alg_options.clone()}
                 />
+            </div>
+            <div class="mt-5">{"Current type on click: "}<b>{current_type_name}</b></div>
+            <div class="flex mt-5 gap-2 justify-between">
+                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
+                    {"Entry"}
+                </TheButton>
+                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Exit)}>
+                    {"Exit"}
+                </TheButton>
+                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Wall)}>
+                    {"Wall"}
+                </TheButton>
             </div>
         </>
     }

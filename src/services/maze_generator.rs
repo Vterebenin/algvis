@@ -71,14 +71,8 @@ fn float_even(num: f32) -> f32 {
     (num / 2.0).ceil() * 2.0
 }
 
-fn get_default_entry_exit(width: usize, height: usize) -> (usize, usize, usize, usize) {
-    return (1, width - 2, 1, height - 2)
-}
-
 fn generate_new_maze(width: usize, height: usize) -> Maze {
     let cells = vec![vec![Cell::Empty; width]; height];
-    let entry_point = Coords::from(1, 0);
-    let exit_point = Coords::from(width - 2, height - 1);
     let mut maze = Maze {
         cells,
         width,
@@ -86,7 +80,7 @@ fn generate_new_maze(width: usize, height: usize) -> Maze {
     };
     maze.generate_side_walls();
     maze.generate(1, width - 2, 1, height - 2);
-    maze.set_entry_exit(entry_point, exit_point);
+    maze.set_default_entry_exit();
     maze
 }
 
@@ -103,13 +97,12 @@ impl Maze {
     }
 
     pub fn reset(&mut self, config: &MazeConfigValues) {
-        let prev_exit = self.exit();
-        let prev_entry = self.entry();
-        self.cells = vec![vec![Cell::Empty; config.width]; config.height];
+        self.width = config.size;
+        self.height = config.size;
+        self.cells = vec![vec![Cell::Empty; self.width]; self.height];
         self.generate_side_walls();
-        self.generate(1, config.width - 2, 1, config.height - 2);
-        self.modify_cell(prev_exit, Cell::Exit);
-        self.modify_cell(prev_entry, Cell::Entry);
+        self.generate(1, self.width - 2, 1, self.height - 2);
+        self.set_default_entry_exit();
     }
 
     fn get_first_coords_of(&self, cell_type: Cell) -> Coords<usize> {
@@ -142,12 +135,13 @@ impl Maze {
 
     fn generate_side_walls(&mut self) {
         // todo: this is shit, we need to refactor it, man
-        for row in 0..self.width {
-            for col in 0..self.height {
-                if col == 0 || row == 0 || row == self.height - 1 || col == self.width - 1 {
-                    self.cells[row][col] = Cell::Wall;
-                }
-            }
+        for col in 0..self.width {
+            self.cells[0][col] = Cell::Wall;
+            self.cells[self.height - 1][col] = Cell::Wall;
+        }
+        for row in 1..self.height - 1 {
+            self.cells[row][0] = Cell::Wall;
+            self.cells[row][self.width - 1] = Cell::Wall;
         }
     }
 
@@ -243,6 +237,12 @@ impl Maze {
         let x = coords.x as usize;
         self.cells[y][x] = value;
         self.cells[y][x]
+    }
+
+    fn set_default_entry_exit(&mut self) {
+        let entry_point = Coords::from(2, 2);
+        let exit_point = Coords::from(self.width - 3, self.height - 3);
+        self.set_entry_exit(entry_point, exit_point);
     }
 
     fn set_entry_exit(&mut self, entry: Coords<usize>, exit: Coords<usize>) {

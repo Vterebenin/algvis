@@ -97,15 +97,15 @@ pub struct Mazer {
 
 impl Mazer {
     pub fn new(config: &MazeConfigValues) -> Mazer {
-        let width = config.width;
-        let height = config.height;
+        let width = config.size;
+        let height = config.size;
         Self {
             steps: VecDeque::new(),
             active_step: 0,
             steps_time: 0.,
             is_playing: false,
-            height: config.height,
-            width: config.width,
+            width,
+            height,
             maze: Maze::new(width, height),
             path: Vec::new(),
             visited: Vec::new(),
@@ -118,6 +118,10 @@ impl Mazer {
         self.steps_time = 0.;
     }
 
+    pub fn show_path_line(&self) -> bool {
+        !self.is_playing && self.active_step == self.get_final_step()
+    }
+
     pub fn play_or_pause(&mut self, config: &MazeConfigValues) {
         if self.is_playing {
             self.pause();
@@ -128,7 +132,7 @@ impl Mazer {
 
     pub fn play(&mut self, config: &MazeConfigValues) {
         self.is_playing = true;
-        if self.active_step == self.max_steps() - 1 {
+        if self.active_step == self.get_final_step() {
             self.set_step(0);
         }
         if self.active_step >= self.max_steps() {
@@ -143,9 +147,9 @@ impl Mazer {
     }
 
     pub fn generate_new_maze(&mut self, config: &MazeConfigValues) {
+        self.width = config.size;
+        self.height = config.size;
         self.maze.reset(config);
-        self.width = config.width; 
-        self.height = config.height;
         self.is_playing = false;
         self.active_step = 0;
     }
@@ -153,8 +157,15 @@ impl Mazer {
     pub fn reset(&mut self, config: &MazeConfigValues) {
         self.maze.reset(config);
         self.is_playing = false;
-        self.set_step(self.max_steps() - 1);
+        self.set_step(self.get_final_step());
         self.calculate_time(config);
+    }
+    pub fn get_final_step(&self) -> u32 {
+        self.max_steps().max(1) - 1
+    }
+
+    pub fn drop_cells(&mut self) {
+        self.maze.cells = self.initial_cells.clone();
     }
 
     pub fn solve(&mut self) {
@@ -164,7 +175,7 @@ impl Mazer {
         self.path = path;
         self.steps = steps;
         self.visited = visited;
-        self.set_step(self.max_steps() - 1);
+        self.set_step(self.get_final_step());
     }
 
     fn max_steps(&self) -> u32 {
@@ -174,10 +185,9 @@ impl Mazer {
     pub fn tick(&mut self) {
         let max_steps = self.max_steps();
         if self.active_step >= max_steps {
-            // Clear interval when the end is reached.
             self.steps_time = 0.;
             self.is_playing = false;
-            self.set_step(self.max_steps() - 1);
+            self.set_step(self.get_final_step());
             return;
         }
         let step_increment = (MAX_REFRESH_RATE / self.steps_time).ceil() as u32;
@@ -196,7 +206,6 @@ impl Mazer {
     }
 
     fn calculate_time(&mut self, config: &MazeConfigValues) {
-        console::log_1(&format!("{} {}", config.time_overall, self.steps.len()).into());
         self.steps_time = config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
     }
 

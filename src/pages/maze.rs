@@ -28,8 +28,8 @@ pub fn maze() -> Html {
             let config_value = (*config).clone();
             let cell_type_value = config_value.cell_type;
             let mut mazer_value = (*mazer).clone();
-            console::log_1(&format!("test {:?}", cell).into());
             let new_cell = Coords::from(cell.col, cell.row);
+            mazer_value.drop_cells();
             match cell_type_value {
                 Cell::Visited => unreachable!(),
                 Cell::Path => unreachable!(),
@@ -38,15 +38,6 @@ pub fn maze() -> Html {
                 Cell::Entry => mazer_value.maze.change_entry(new_cell),
                 Cell::Exit => mazer_value.maze.change_exit(new_cell),
             };
-            mazer_value.solve();
-            mazer.set(mazer_value);
-        })
-    };
-    let clear_walls = {
-        let mazer = mazer.clone();
-        Callback::from(move |_| {
-            let mut mazer_value = (*mazer).clone();
-            mazer_value.maze.clear_walls();
             mazer_value.solve();
             mazer.set(mazer_value);
         })
@@ -96,18 +87,13 @@ pub fn maze() -> Html {
 
     html! {
         <div class="flex justify-between gap-10">
-            <div>
+            <div class="min-w-[320px]">
                 <MazeConfig value={(*config).clone()} on_change={set_config} />
-                <div class="flex gap-5">
-                    <TheButton class="mt-5" onclick={clear_walls}>
-                        {"Clear All Walls"}
-                    </TheButton>
-                    <TheButton class="mt-5" onclick={generate}>
+                <div class="flex my-5 gap-5">
+                    <TheButton onclick={generate}>
                         {"Generate"}
                     </TheButton>
-                </div>
-                <div>
-                    <TheButton class="my-5" onclick={play_or_pause}>
+                    <TheButton onclick={play_or_pause}>
                      {
                          if is_playing {
                             {"Pause"}
@@ -117,7 +103,6 @@ pub fn maze() -> Html {
                      }
                     </TheButton>
                 </div>
-                <MazeLegend />
             </div>
             <MazeViewCanvas
                 mazer={(*mazer).clone()}
