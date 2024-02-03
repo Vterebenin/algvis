@@ -91,8 +91,8 @@ pub struct Mazer {
     pub steps: VecDeque<MazeStep>,
     pub steps_time: f32,
     pub is_playing: bool,
+    pub active_step: u32,
     initial_cells: Vec<Vec<Cell>>,
-    active_step: u32,
 }
 
 impl Mazer {
@@ -229,5 +229,9 @@ impl Mazer {
             }
         }
         data
+    }
+
+    pub fn get_steps_len_string(&self) -> String {
+        self.get_final_step().to_string()
     }
 }

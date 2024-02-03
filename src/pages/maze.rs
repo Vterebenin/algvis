@@ -3,6 +3,7 @@ use yew::prelude::*;
 use yew_hooks::use_interval;
 
 use crate::components::maze_page::maze_config::{MazeConfig, MazeConfigValues};
+use crate::components::ui::the_slider::TheSlider;
 use crate::{
     components::maze_page::maze_legend::MazeLegend,
     components::{
@@ -85,11 +86,20 @@ pub fn maze() -> Html {
     }
     let is_playing = (*mazer).is_playing;
 
+    let change_current_step = {
+        let mazer = mazer.clone();
+        Callback::from(move |value: u32| {
+            let mut mazer_value = (*mazer).clone();
+            mazer_value.set_step(value);
+            mazer.set(mazer_value);
+        })
+    };
+
     html! {
-        <div class="flex justify-between gap-10">
-            <div class="min-w-[320px]">
+        <div class="w-full flex flex-col-reverse md:flex-row justify-center items-center gap-6 md:mt-[100px]">
+            <div class="flex flex-col justify-between gap-3 p-5 border-2 border-accent rounded-lg h-full w-full max-w-[320px]">
                 <MazeConfig value={(*config).clone()} on_change={set_config} />
-                <div class="flex my-5 gap-5">
+                <div class="flex gap-3">
                     <TheButton onclick={generate}>
                         {"Generate"}
                     </TheButton>
@@ -104,10 +114,17 @@ pub fn maze() -> Html {
                     </TheButton>
                 </div>
             </div>
-            <MazeViewCanvas
-                mazer={(*mazer).clone()}
-                on_cell_click={on_cell_click}
-            />
+            <div>
+                <MazeViewCanvas
+                    mazer={(*mazer).clone()}
+                    on_cell_click={on_cell_click}
+                />
+                <TheSlider 
+                    max={mazer.get_steps_len_string()} 
+                    value={(*mazer).active_step} 
+                    set_value={change_current_step} 
+                />
+            </div>
         </div>
     }
 }

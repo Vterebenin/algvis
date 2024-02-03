@@ -128,7 +128,7 @@ pub fn maze_config(props: &Props) -> Html {
                 />
             </div>
             <div class="mt-5">{"Current type on click: "}<b>{current_type_name}</b></div>
-            <div class="flex mt-5 gap-2 justify-between">
+            <div class="flex gap-2 justify-between">
                 <TheButton onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
                     {"Entry"}
                 </TheButton>
