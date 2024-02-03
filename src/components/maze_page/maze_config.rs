@@ -97,18 +97,13 @@ pub fn maze_config(props: &Props) -> Html {
         })
     };
     
-    let current_type_name = {
+    let current_type = {
         let config_value = (*config).clone();
-        if config_value.cell_type == Cell::Wall {
-            "Wall or Empty"
-        } else {
-            config_value.cell_type.as_name()
-        }
+        config_value.cell_type
     };
 
     html! {
         <>
-            <h2 class="text-xl">{"Configuration: "}</h2>
             <div>
                 <TheInput
                     label="Size"
@@ -126,18 +121,17 @@ pub fn maze_config(props: &Props) -> Html {
                     on_change={change_current_algorithm}
                     options={config.alg_options.clone()}
                 />
-            </div>
-            <div class="mt-5">{"Click on a cell to change: "}<b>{current_type_name}</b></div>
-            <div class="flex gap-2 justify-between">
-                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
-                    {"Entry"}
-                </TheButton>
-                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Exit)}>
-                    {"Exit"}
-                </TheButton>
-                <TheButton onclick={set_entry.clone().reform(|_| &Cell::Wall)}>
-                    {"Wall"}
-                </TheButton>
+                <div class="flex mt-6 gap-2 justify-between">
+                    <TheButton active={current_type == Cell::Entry} onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
+                        {"Entry"}
+                    </TheButton>
+                    <TheButton active={current_type == Cell::Exit} onclick={set_entry.clone().reform(|_| &Cell::Exit)}>
+                        {"Exit"}
+                    </TheButton>
+                    <TheButton active={current_type == Cell::Wall} onclick={set_entry.clone().reform(|_| &Cell::Wall)}>
+                        {"Wall"}
+                    </TheButton>
+                </div>
             </div>
         </>
     }
