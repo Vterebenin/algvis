@@ -231,6 +231,10 @@ impl Mazer {
         data
     }
 
+    pub fn get_active_step_string(&self) -> String {
+        self.active_step.to_string()
+    }
+
     pub fn get_steps_len_string(&self) -> String {
         self.get_final_step().to_string()
     }

@@ -95,6 +95,16 @@ pub fn maze() -> Html {
             mazer.set(mazer_value);
         })
     };
+    let steps_info = {
+        let steps_total = format!("Steps total: {}", mazer.get_steps_len_string());
+        let active_step_index = format!("Active step: {}", mazer.get_active_step_string());
+        html! {
+            <div class="mb-2">
+                <div>{steps_total}</div>
+                <div>{active_step_index}</div>
+            </div>
+        }
+    };
 
     html! {
         <div class="w-full flex flex-col-reverse md:flex-row justify-center items-center gap-6 md:mt-[100px]">
@@ -116,6 +126,7 @@ pub fn maze() -> Html {
                 </div>
             </div>
             <div>
+                {steps_info}
                 <MazeViewCanvas
                     mazer={(*mazer).clone()}
                     on_cell_click={on_cell_click.clone()}
