@@ -127,7 +127,7 @@ pub fn maze_config(props: &Props) -> Html {
                     options={config.alg_options.clone()}
                 />
             </div>
-            <div class="mt-5">{"Current type on click: "}<b>{current_type_name}</b></div>
+            <div class="mt-5">{"Click on a cell to change: "}<b>{current_type_name}</b></div>
             <div class="flex gap-2 justify-between">
                 <TheButton onclick={set_entry.clone().reform(|_| &Cell::Entry)}>
                     {"Entry"}

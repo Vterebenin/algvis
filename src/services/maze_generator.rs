@@ -44,12 +44,12 @@ impl Cell {
 
     pub fn as_color(&self) -> &'static str {
         match self {
-            Cell::Empty => "#E6E6E6",   // Lighter Gray
-            Cell::Visited => "#99CC99", // Light Green
-            Cell::Path => "#FFD700",    // Gold
-            Cell::Wall => "#993366",    // Mauve
-            Cell::Entry => "#FF6347",   // Tomato
-            Cell::Exit => "#4B0082",    // Indigo
+            Cell::Empty => "#f5f5f5",   
+            Cell::Visited => "#ff9933",
+            Cell::Path => "#a0e6f2",  
+            Cell::Wall => "#cc0000", 
+            Cell::Entry => "#ffd700",
+            Cell::Exit => "#00ff00",
         }
     }
 }
