@@ -126,7 +126,7 @@ impl Maze {
     pub fn clear_walls(&mut self) {
         for row in self.cells.iter_mut() {
             for cell in row.iter_mut() {
-                if cell == &Cell::Wall {
+                if cell == &Cell::Wall || cell == &Cell::Visited || cell == &Cell::Path {
                     *cell = Cell::Empty;
                 }
             }
@@ -134,7 +134,6 @@ impl Maze {
     }
 
     fn generate_side_walls(&mut self) {
-        // todo: this is shit, we need to refactor it, man
         for col in 0..self.width {
             self.cells[0][col] = Cell::Wall;
             self.cells[self.height - 1][col] = Cell::Wall;

@@ -188,6 +188,25 @@ fn get_canvas_and_context() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
     (canvas, context)
 }
 
+pub fn get_coords_by_mouse_event(e: MouseEvent) -> Coords<i32> {
+    let (canvas, ..) = get_canvas_and_context();
+    let target = e.target().unwrap();
+    let rect = target
+        .dyn_ref::<Element>()
+        .unwrap()
+        .get_bounding_client_rect();
+
+    let x = e.client_x() - rect.left() as i32;
+    let y = e.client_y() - rect.top() as i32;
+    let coef_x = canvas.width() as f64 / rect.width();
+    let coef_y = canvas.height() as f64 / rect.height();
+    let x = x as f64 * coef_x;
+    let y = y as f64 * coef_y;
+    let x = x as i32;
+    let y = y as i32;
+    Coords::from(x, y)
+}
+
 #[function_component(MazeViewCanvas)]
 pub fn maze_view_canvas(props: &Props) -> Html {
     let maze_items: UseStateHandle<Vec<MazeItem>> = use_state(|| vec![]);
@@ -204,24 +223,14 @@ pub fn maze_view_canvas(props: &Props) -> Html {
                 }
                 maze_items.set(maze_items_value);
             },
-            props.mazer.clone(),
+            (props.mazer.clone(), props.on_cell_click.clone()),
         );
     }
 
     let onclick = {
         let on_cell_click = props.on_cell_click.clone();
         Callback::from(move |e: MouseEvent| {
-            // todo: make a separate function
-            let target = e.target().unwrap();
-            let rect = target
-                .dyn_ref::<Element>()
-                .unwrap()
-                .get_bounding_client_rect();
-
-            let x = e.client_x() - rect.left() as i32;
-            let y = e.client_y() - rect.top() as i32;
-            let coords = Coords::from(x, y);
-
+            let coords = get_coords_by_mouse_event(e);
             if let Some(cell) = find_item_by_coords(coords, &maze_items) {
                 on_cell_click.emit(cell);
             }

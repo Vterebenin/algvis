@@ -43,6 +43,7 @@ pub fn maze() -> Html {
             mazer.set(mazer_value);
         })
     };
+
     let generate = {
         let mazer = mazer.clone();
         let config_value = (*config).clone();
@@ -53,7 +54,7 @@ pub fn maze() -> Html {
             mazer.set(mazer_value);
         })
     };
-
+    
     let set_config = {
         let config = config.clone();
         Callback::from(move |v: MazeConfigValues| {
@@ -117,12 +118,12 @@ pub fn maze() -> Html {
             <div>
                 <MazeViewCanvas
                     mazer={(*mazer).clone()}
-                    on_cell_click={on_cell_click}
+                    on_cell_click={on_cell_click.clone()}
                 />
-                <TheSlider 
-                    max={mazer.get_steps_len_string()} 
-                    value={(*mazer).active_step} 
-                    set_value={change_current_step} 
+                <TheSlider
+                    max={mazer.get_steps_len_string()}
+                    value={(*mazer).active_step}
+                    set_value={change_current_step}
                 />
             </div>
         </div>
