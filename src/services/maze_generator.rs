@@ -44,12 +44,12 @@ impl Cell {
 
     pub fn as_color(&self) -> &'static str {
         match self {
-            Cell::Empty => "#E6E6E6",   // Lighter Gray
-            Cell::Visited => "#99CC99", // Light Green
-            Cell::Path => "#FFD700",    // Gold
-            Cell::Wall => "#993366",    // Mauve
-            Cell::Entry => "#FF6347",   // Tomato
-            Cell::Exit => "#4B0082",    // Indigo
+            Cell::Empty => "#f5f5f5",   
+            Cell::Visited => "#ff9933",
+            Cell::Path => "#a0e6f2",  
+            Cell::Wall => "#cc0000", 
+            Cell::Entry => "#ffd700",
+            Cell::Exit => "#00ff00",
         }
     }
 }
@@ -126,7 +126,7 @@ impl Maze {
     pub fn clear_walls(&mut self) {
         for row in self.cells.iter_mut() {
             for cell in row.iter_mut() {
-                if cell == &Cell::Wall {
+                if cell == &Cell::Wall || cell == &Cell::Visited || cell == &Cell::Path {
                     *cell = Cell::Empty;
                 }
             }
@@ -134,7 +134,6 @@ impl Maze {
     }
 
     fn generate_side_walls(&mut self) {
-        // todo: this is shit, we need to refactor it, man
         for col in 0..self.width {
             self.cells[0][col] = Cell::Wall;
             self.cells[self.height - 1][col] = Cell::Wall;
