@@ -1,76 +1,59 @@
-use std::collections::{HashMap, VecDeque};
-
-use web_sys::console;
+use std::collections::VecDeque;
 
 use crate::{
-    components::{
-        maze_page::{maze_config::MazeConfigValues, maze_view_canvas::Coords},
-        sorting_page::sorting_config::SortConfigValues,
-    },
+    components::maze_page::{maze_config::MazeConfigValues, maze_view_canvas::Coords},
     helpers::{MAX_REFRESH_RATE, MS_IN_SECS},
-    maze_solver_algorithms::dfs::is_path_between,
+    maze_solver_algorithms::{dfs::solve_maze_by_dfs, dijkstra::solve_maze_by_dijkstra},
 };
 
 use super::maze_generator::{Cell, Maze};
 
-#[derive(Clone, PartialEq, Debug, Copy)]
-pub enum RunType {
-    Search(i32),
-    Path(i32),
-}
-
-impl ToString for RunType {
-    fn to_string(&self) -> String {
-        match &self {
-            RunType::Search(step) => {
-                format!("todo")
-            }
-            RunType::Path(path_step) => format!("todo"),
-        }
-    }
-}
-
 #[derive(Clone, PartialEq, Debug)]
 enum MazeAlgorithmsEnum {
     Dijkstra,
+    DFS,
 }
 
 impl MazeAlgorithmsEnum {
     fn from_string(s: String) -> Result<MazeAlgorithmsEnum, &'static str> {
         match s.as_str() {
             "dijkstra" => Ok(MazeAlgorithmsEnum::Dijkstra),
+            "dfs" => Ok(MazeAlgorithmsEnum::DFS),
             _ => Err("Invalid variant"),
         }
     }
 }
 
+pub type MazeSolverReturnType = (
+    Vec<(usize, usize)>,
+    VecDeque<MazeStep>,
+);
+pub type MazeSolverType = fn(&Maze, Coords<usize>, Coords<usize>) -> MazeSolverReturnType;
+
 struct MazeAlgorithm;
 
 impl MazeAlgorithm {
-    pub fn new() -> Self {
-        Self
+    pub fn run(
+        config: &MazeConfigValues,
+        maze: &Maze,
+        start: Coords<usize>,
+        end: Coords<usize>,
+    ) -> MazeSolverReturnType {
+        (MazeAlgorithm::from(config))(maze, start, end)
     }
 
-    pub fn do_sort(
-        &self,
-        sort_config: &SortConfigValues,
-        items: &mut Vec<i32>,
-        steps: &mut VecDeque<RunType>,
-    ) {
-        (MazeAlgorithm::from(sort_config))(items, steps)
-    }
-
-    pub fn from(sort_config: &SortConfigValues) -> fn(&mut Vec<i32>, &mut VecDeque<RunType>) {
-        let result = MazeAlgorithmsEnum::from_string(sort_config.current_algorithm_name.clone());
+    fn from(config: &MazeConfigValues) -> MazeSolverType {
+        let result = MazeAlgorithmsEnum::from_string(config.current_algorithm_name.clone());
         match result {
             Ok(v) => MazeAlgorithm::from_enum(v),
             Err(_) => MazeAlgorithm::from_enum(MazeAlgorithmsEnum::Dijkstra),
         }
     }
 
-    fn from_enum(enum_value: MazeAlgorithmsEnum) -> fn(&mut Vec<i32>, &mut VecDeque<RunType>) {
+    fn from_enum(enum_value: MazeAlgorithmsEnum) -> MazeSolverType {
         match enum_value {
-            MazeAlgorithmsEnum::Dijkstra => todo!(),
+            MazeAlgorithmsEnum::Dijkstra => solve_maze_by_dijkstra,
+            MazeAlgorithmsEnum::DFS => solve_maze_by_dfs,
         }
     }
 }
@@ -87,7 +70,6 @@ pub struct Mazer {
     pub width: usize,
     pub height: usize,
     pub path: Vec<(usize, usize)>,
-    pub visited: Vec<Vec<bool>>,
     pub steps: VecDeque<MazeStep>,
     pub steps_time: f32,
     pub is_playing: bool,
@@ -108,7 +90,6 @@ impl Mazer {
             height,
             maze: Maze::new(width, height),
             path: Vec::new(),
-            visited: Vec::new(),
             initial_cells: Vec::new(),
         }
     }
@@ -168,13 +149,12 @@ impl Mazer {
         self.maze.cells = self.initial_cells.clone();
     }
 
-    pub fn solve(&mut self) {
+    pub fn solve(&mut self, config: &MazeConfigValues) {
         self.initial_cells = self.maze.cells.clone();
-        let (path, _, visited, steps) =
-            is_path_between(&self.maze, self.maze.entry(), self.maze.exit());
-        self.path = path;
+        let (path, steps) =
+            MazeAlgorithm::run(config, &self.maze, self.maze.entry(), self.maze.exit());
         self.steps = steps;
-        self.visited = visited;
+        self.path = path;
         self.set_step(self.get_final_step());
     }
 
@@ -221,7 +201,7 @@ impl Mazer {
         let mut data = self.initial_cells.clone();
         for _ in 0..step {
             if let Some(MazeStep { coords, cell_type }) = steps.pop_back() {
-                if data[coords.y][coords.x] != Cell::Entry {
+                if data[coords.y][coords.x] != Cell::Entry && data[coords.y][coords.x] != Cell::Exit {
                     data[coords.y][coords.x] = cell_type;
                 }
             } else {

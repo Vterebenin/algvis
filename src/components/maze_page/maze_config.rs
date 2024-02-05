@@ -24,10 +24,10 @@ impl MazeConfigValues {
             size: 35,
             cell_type: Cell::Entry,
             current_algorithm_name: default_algorithm.clone(),
-            alg_options: vec![SelectOption {
-                value: default_algorithm,
-                label: String::from("DFS"),
-            }],
+            alg_options: vec![
+                SelectOption { value: default_algorithm, label: String::from("DFS"), },
+                SelectOption { value: "dijkstra".to_string(), label: String::from("Dijkstra"), },
+            ],
             current_step: 0,
         }
     }

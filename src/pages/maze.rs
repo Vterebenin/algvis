@@ -1,11 +1,9 @@
-use web_sys::console;
 use yew::prelude::*;
 use yew_hooks::use_interval;
 
 use crate::components::maze_page::maze_config::{MazeConfig, MazeConfigValues};
 use crate::components::ui::the_slider::TheSlider;
 use crate::{
-    components::maze_page::maze_legend::MazeLegend,
     components::{
         maze_page::maze_view_canvas::{Coords, MazeItem, MazeViewCanvas},
         ui::the_button::TheButton,
@@ -17,7 +15,7 @@ use crate::{
 pub fn maze() -> Html {
     let config = MazeConfigValues::new();
     let mut mazer = Mazer::new(&config);
-    mazer.solve();
+    mazer.solve(&config);
     let mazer: UseStateHandle<Mazer> = use_state(|| mazer);
     let config: UseStateHandle<MazeConfigValues> = use_state(|| config);
 
@@ -39,7 +37,7 @@ pub fn maze() -> Html {
                 Cell::Entry => mazer_value.maze.change_entry(new_cell),
                 Cell::Exit => mazer_value.maze.change_exit(new_cell),
             };
-            mazer_value.solve();
+            mazer_value.solve(&config_value);
             mazer.set(mazer_value);
         })
     };
@@ -50,7 +48,7 @@ pub fn maze() -> Html {
         Callback::from(move |_| {
             let mut mazer_value = (*mazer).clone();
             mazer_value.generate_new_maze(&config_value);
-            mazer_value.solve();
+            mazer_value.solve(&config_value);
             mazer.set(mazer_value);
         })
     };

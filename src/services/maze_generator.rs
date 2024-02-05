@@ -87,13 +87,17 @@ fn generate_new_maze(width: usize, height: usize) -> Maze {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Maze {
     pub cells: Vec<Vec<Cell>>,
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl Maze {
     pub fn new(width: usize, height: usize) -> Maze {
         generate_new_maze(width, height)
+    }
+
+    pub fn get_weight(&self) -> u32 {
+        return 1;
     }
 
     pub fn reset(&mut self, config: &MazeConfigValues) {
