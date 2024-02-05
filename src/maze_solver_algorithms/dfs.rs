@@ -1,17 +1,17 @@
 use std::collections::VecDeque;
 
-use crate::{services::{maze_generator::{Maze, Cell}, mazer::MazeStep}, components::maze_page::maze_view_canvas::Coords};
+use crate::{services::{maze_generator::{Maze, Cell}, mazer::{MazeStep, MazeSolverReturnType}}, components::maze_page::maze_view_canvas::Coords};
 
-pub fn is_path_between(
+pub fn solve_maze_by_dfs(
     maze: &Maze,
     start: Coords<usize>,
     end: Coords<usize>,
-) -> (Vec<(usize, usize)>, bool, Vec<Vec<bool>>, VecDeque<MazeStep>) {
+) -> MazeSolverReturnType {
     let mut visited = vec![vec![false; maze.cells[0].len()]; maze.cells.len()];
     let mut path = vec![];
     let mut steps: VecDeque<MazeStep> = VecDeque::new();
-    let result = dfs_path_exists(maze, &mut visited, start, end, &mut path, &mut steps);
-    (path, result, visited, steps)
+    dfs_path_exists(maze, &mut visited, start, end, &mut path, &mut steps);
+    (path, steps)
 }
 
 pub fn dfs_path_exists(

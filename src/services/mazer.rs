@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use crate::{
     components::maze_page::{maze_config::MazeConfigValues, maze_view_canvas::Coords},
     helpers::{MAX_REFRESH_RATE, MS_IN_SECS},
-    maze_solver_algorithms::dfs::is_path_between,
+    maze_solver_algorithms::{dfs::solve_maze_by_dfs, dijkstra::solve_maze_by_dijkstra},
 };
 
 use super::maze_generator::{Cell, Maze};
@@ -26,8 +26,6 @@ impl MazeAlgorithmsEnum {
 
 pub type MazeSolverReturnType = (
     Vec<(usize, usize)>,
-    bool,
-    Vec<Vec<bool>>,
     VecDeque<MazeStep>,
 );
 pub type MazeSolverType = fn(&Maze, Coords<usize>, Coords<usize>) -> MazeSolverReturnType;
@@ -54,8 +52,8 @@ impl MazeAlgorithm {
 
     fn from_enum(enum_value: MazeAlgorithmsEnum) -> MazeSolverType {
         match enum_value {
-            MazeAlgorithmsEnum::Dijkstra => is_path_between,
-            MazeAlgorithmsEnum::DFS => is_path_between,
+            MazeAlgorithmsEnum::Dijkstra => solve_maze_by_dijkstra,
+            MazeAlgorithmsEnum::DFS => solve_maze_by_dfs,
         }
     }
 }
@@ -72,7 +70,6 @@ pub struct Mazer {
     pub width: usize,
     pub height: usize,
     pub path: Vec<(usize, usize)>,
-    pub visited: Vec<Vec<bool>>,
     pub steps: VecDeque<MazeStep>,
     pub steps_time: f32,
     pub is_playing: bool,
@@ -93,7 +90,6 @@ impl Mazer {
             height,
             maze: Maze::new(width, height),
             path: Vec::new(),
-            visited: Vec::new(),
             initial_cells: Vec::new(),
         }
     }
@@ -155,11 +151,10 @@ impl Mazer {
 
     pub fn solve(&mut self, config: &MazeConfigValues) {
         self.initial_cells = self.maze.cells.clone();
-        let (path, _, visited, steps) =
+        let (path, steps) =
             MazeAlgorithm::run(config, &self.maze, self.maze.entry(), self.maze.exit());
-        self.path = path;
         self.steps = steps;
-        self.visited = visited;
+        self.path = path;
         self.set_step(self.get_final_step());
     }
 
@@ -206,7 +201,7 @@ impl Mazer {
         let mut data = self.initial_cells.clone();
         for _ in 0..step {
             if let Some(MazeStep { coords, cell_type }) = steps.pop_back() {
-                if data[coords.y][coords.x] != Cell::Entry {
+                if data[coords.y][coords.x] != Cell::Entry && data[coords.y][coords.x] != Cell::Exit {
                     data[coords.y][coords.x] = cell_type;
                 }
             } else {

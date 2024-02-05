@@ -12,7 +12,7 @@ pub struct Props {
     pub on_cell_click: Callback<MazeItem>,
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub struct Coords<T: Copy> {
     pub x: T,
     pub y: T,
