@@ -1,5 +1,5 @@
 use wasm_bindgen::prelude::*;
-use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement, console};
+use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement};
 use yew::prelude::*;
 
 use crate::services::{maze_generator::Cell, mazer::Mazer};
