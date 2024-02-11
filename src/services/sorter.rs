@@ -9,6 +9,8 @@ use crate::sorting_algorithms::merge_sort::merge_sort;
 use crate::sorting_algorithms::quick_sort::quick_sort;
 use crate::sorting_algorithms::shell_sort::shell_sort;
 
+use super::playable::Playable;
+
 #[derive(Clone, PartialEq, Debug, Copy)]
 pub enum SortType<T> {
     Set(usize, T),
@@ -157,7 +159,40 @@ impl Sorter {
         self.is_playing = false;
     }
 
-    pub fn tick(&mut self) {
+
+    pub fn generate(&mut self, sort_config: &SortConfigValues) {
+        self.data = get_new_generation(&sort_config.items_count);
+        self.steps = VecDeque::new();
+        self.initial_data = self.data.clone();
+        self.sort(sort_config);
+    }
+}
+
+impl Playable<SortConfigValues, SortType<i32>, Vec<i32>> for Sorter {
+    fn reset(&mut self, sort_config: &SortConfigValues) {
+        self.data = self.initial_data.clone();
+        self.set_step(0);
+        self.calculate_time(sort_config);
+    }
+
+    fn play(&mut self, sort_config: &SortConfigValues) {
+        self.is_playing = true;
+        if self.active_step as usize == self.steps.len() {
+            self.reset(sort_config);
+            return;
+        }
+        if self.is_playing == false && self.steps_time > 0. {
+            return;
+        }
+
+        self.calculate_time(sort_config);
+    }
+
+    fn stop(&mut self) {
+        self.is_playing = false;
+    }
+
+    fn tick(&mut self) {
         let max_steps = self.steps.len() as u32;
         if self.active_step >= max_steps {
             // Clear interval when the end is reached.
@@ -176,23 +211,16 @@ impl Sorter {
         self.active_step = new_step_index;
     }
 
-    pub fn generate(&mut self, sort_config: &SortConfigValues) {
-        self.data = get_new_generation(&sort_config.items_count);
-        self.steps = VecDeque::new();
-        self.initial_data = self.data.clone();
-        self.sort(sort_config);
-    }
-
-    pub fn set_step(&mut self, step: u32) {
+    fn set_step(&mut self, step: u32) {
         self.data = self.get_output_by_step(step);
         self.active_step = step;
     }
     
-    pub fn get_active_step_string(&self) -> String {
+    fn get_active_step_string(&self) -> String {
         self.active_step.to_string()
     }
 
-    pub fn tick_time(&self) -> u32 {
+    fn tick_time(&self) -> u32 {
         if self.steps_time == 0. || !self.is_playing {
             return 0
         }
@@ -213,14 +241,18 @@ impl Sorter {
         data
     }
 
-    pub fn get_steps_len_string(&self) -> String {
+    fn get_steps_len_string(&self) -> String {
         self.steps.len().to_string()
     }
 
-    pub fn get_active_step_item(&self) -> SortType<i32> {
+    fn get_active_step_item(&self) -> SortType<i32> {
         match self.steps.get(self.steps.len() - self.active_step as usize) {
             Some(v) => *v,
             None => SortType::Swap(0, 0)
         }
+    }
+
+    fn calculate_time(&mut self, sort_config: &SortConfigValues) {
+        self.steps_time = sort_config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
     }
 }

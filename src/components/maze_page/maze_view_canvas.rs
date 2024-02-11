@@ -1,10 +1,11 @@
 use wasm_bindgen::prelude::*;
-use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement, console};
+use web_sys::{CanvasRenderingContext2d, Element, HtmlCanvasElement};
 use yew::prelude::*;
 
 use crate::services::{maze_generator::Cell, mazer::Mazer};
 
 const BLACK: &str = "#000000";
+const ROUND_STYLE: &str = "round";
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -182,8 +183,8 @@ fn get_canvas_and_context() -> (HtmlCanvasElement, CanvasRenderingContext2d) {
 
     context.clear_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
     context.fill();
-    context.set_line_cap("round");
-    context.set_line_join("round");
+    context.set_line_cap(ROUND_STYLE);
+    context.set_line_join(ROUND_STYLE);
     context.set_fill_style(&str_to_js(BLACK));
     (canvas, context)
 }

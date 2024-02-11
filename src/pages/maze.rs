@@ -3,6 +3,7 @@ use yew_hooks::use_interval;
 
 use crate::components::maze_page::maze_config::{MazeConfig, MazeConfigValues};
 use crate::components::ui::the_slider::TheSlider;
+use crate::services::playable::Playable;
 use crate::{
     components::{
         maze_page::maze_view_canvas::{Coords, MazeItem, MazeViewCanvas},

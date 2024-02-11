@@ -1,7 +1,6 @@
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
-use web_sys::console;
 
 use crate::services::mazer::MazeSolverReturnType;
 use crate::{services::{maze_generator::{Maze, Cell}, mazer::MazeStep}, components::maze_page::maze_view_canvas::Coords};

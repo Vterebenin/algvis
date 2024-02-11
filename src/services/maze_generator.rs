@@ -4,7 +4,6 @@ use std::slice::Iter;
 use rand::distributions::uniform::SampleRange;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
-use web_sys::console;
 
 use crate::components::maze_page::maze_config::MazeConfigValues;
 use crate::components::maze_page::maze_view_canvas::Coords;
@@ -125,16 +124,6 @@ impl Maze {
 
     pub fn entry(&self) -> Coords<usize> {
         self.get_first_coords_of(Cell::Entry)
-    }
-
-    pub fn clear_walls(&mut self) {
-        for row in self.cells.iter_mut() {
-            for cell in row.iter_mut() {
-                if cell == &Cell::Wall || cell == &Cell::Visited || cell == &Cell::Path {
-                    *cell = Cell::Empty;
-                }
-            }
-        }
     }
 
     fn generate_side_walls(&mut self) {
