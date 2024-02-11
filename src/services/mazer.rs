@@ -6,7 +6,7 @@ use crate::{
     maze_solver_algorithms::{dfs::solve_maze_by_dfs, dijkstra::solve_maze_by_dijkstra},
 };
 
-use super::maze_generator::{Cell, Maze};
+use super::{maze_generator::{Cell, Maze}, playable::Playable};
 
 #[derive(Clone, PartialEq, Debug)]
 enum MazeAlgorithmsEnum {
@@ -58,7 +58,7 @@ impl MazeAlgorithm {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub struct MazeStep {
     pub coords: Coords<usize>,
     pub cell_type: Cell,
@@ -94,37 +94,16 @@ impl Mazer {
         }
     }
 
-    pub fn pause(&mut self) {
-        self.is_playing = false;
-        self.steps_time = 0.;
-    }
-
     pub fn show_path_line(&self) -> bool {
         !self.is_playing && self.active_step == self.get_final_step()
     }
 
     pub fn play_or_pause(&mut self, config: &MazeConfigValues) {
         if self.is_playing {
-            self.pause();
+            self.stop();
         } else {
             self.play(config);
         }
-    }
-
-    pub fn play(&mut self, config: &MazeConfigValues) {
-        self.is_playing = true;
-        if self.active_step == self.get_final_step() {
-            self.set_step(0);
-        }
-        if self.active_step >= self.max_steps() {
-            self.reset(config);
-            return;
-        }
-        if self.steps_time > 0. {
-            return;
-        }
-
-        self.calculate_time(config);
     }
 
     pub fn generate_new_maze(&mut self, config: &MazeConfigValues) {
@@ -135,12 +114,6 @@ impl Mazer {
         self.active_step = 0;
     }
 
-    pub fn reset(&mut self, config: &MazeConfigValues) {
-        self.maze.reset(config);
-        self.is_playing = false;
-        self.set_step(self.get_final_step());
-        self.calculate_time(config);
-    }
     pub fn get_final_step(&self) -> u32 {
         self.max_steps().max(1) - 1
     }
@@ -161,8 +134,38 @@ impl Mazer {
     fn max_steps(&self) -> u32 {
         return self.steps.len() as u32;
     }
+}
 
-    pub fn tick(&mut self) {
+impl Playable<MazeConfigValues, MazeStep, Vec<Vec<Cell>>> for Mazer {
+    fn reset(&mut self, config: &MazeConfigValues) {
+        self.maze.reset(config);
+        self.is_playing = false;
+        self.set_step(self.get_final_step());
+        self.calculate_time(config);
+    }
+
+    fn play(&mut self, config: &MazeConfigValues) {
+        self.is_playing = true;
+        if self.active_step == self.get_final_step() {
+            self.set_step(0);
+        }
+        if self.active_step >= self.max_steps() {
+            self.reset(config);
+            return;
+        }
+        if self.steps_time > 0. {
+            return;
+        }
+
+        self.calculate_time(config);
+    }
+
+    fn stop(&mut self) {
+        self.is_playing = false;
+        self.steps_time = 0.;
+    }
+
+    fn tick(&mut self) {
         let max_steps = self.max_steps();
         if self.active_step >= max_steps {
             self.steps_time = 0.;
@@ -180,16 +183,16 @@ impl Mazer {
         self.set_step(new_step_index);
     }
 
-    pub fn set_step(&mut self, step: u32) {
+    fn set_step(&mut self, step: u32) {
         self.maze.cells = self.get_output_by_step(step);
         self.active_step = step;
     }
 
-    fn calculate_time(&mut self, config: &MazeConfigValues) {
-        self.steps_time = config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
+    fn get_active_step_string(&self) -> String {
+        self.active_step.to_string()
     }
 
-    pub fn tick_time(&self) -> u32 {
+    fn tick_time(&self) -> u32 {
         if self.steps_time == 0. || !self.is_playing {
             return 0;
         }
@@ -211,11 +214,15 @@ impl Mazer {
         data
     }
 
-    pub fn get_active_step_string(&self) -> String {
-        self.active_step.to_string()
+    fn get_steps_len_string(&self) -> String {
+        self.get_final_step().to_string()
     }
 
-    pub fn get_steps_len_string(&self) -> String {
-        self.get_final_step().to_string()
+    fn get_active_step_item(&self) -> MazeStep {
+        self.steps[self.active_step as usize]
+    }
+
+    fn calculate_time(&mut self, config: &MazeConfigValues) {
+        self.steps_time = config.time_overall as f32 / self.steps.len() as f32 * MS_IN_SECS;
     }
 }

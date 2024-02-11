@@ -5,6 +5,7 @@ use crate::components::sorting_page::sorting_config::{SortConfigValues, SortingC
 use crate::components::sorting_page::sorting_graph_canvas::SortingGraphCanvas;
 use crate::components::ui::the_button::TheButton;
 use crate::components::ui::the_slider::TheSlider;
+use crate::services::playable::Playable;
 use crate::services::sorter::Sorter;
 
 #[function_component(Sort)]
